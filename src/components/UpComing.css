@@ -1,0 +1,93 @@
+.up-container {
+  background: linear-gradient(135deg, #1e0b36, #0f051d);
+  padding: 20px 0 150px;
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  contain: content;
+}
+.up-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  gap: 50px;
+}
+.up-text {
+  flex: 0 0 300px;
+  color: #fff;
+}
+.up-title {
+  font-size: 2.7rem;
+  margin: 12px 0;
+}
+.up-nav {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+.up-btn {
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  background: none;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+.up-slider {
+  flex: 1;
+  overflow: hidden;
+}
+.up-track {
+  display: flex;
+  gap: 28px;
+}
+.up-card {
+  width: 290px;
+  height: 290px;
+  border-radius: 24px;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+  display: block; /* Đảm bảo Link hiển thị đúng */
+}
+.up-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.up-overlay {
+  width: 100%;
+  position: absolute;
+  bottom: 0;
+  padding: 25px;
+  background: linear-gradient(transparent, #000);
+  color: #fff;
+}
+.dim {
+  opacity: 0.45;
+  filter: blur(1px);
+}
+.up-wave {
+  position: absolute;
+  bottom: -1px;
+  width: 100%;
+  line-height: 0;
+}
+
+@media (max-width: 768px) {
+  .up-inner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .up-text {
+    flex: none;
+    width: 100%;
+  }
+}

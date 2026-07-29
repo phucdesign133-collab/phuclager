@@ -1,0 +1,43 @@
+.gallery-wrapper {
+  width: 90%;
+  margin: 20px auto;
+  text-align: center;
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* 4 cột */
+  gap: 16px;
+}
+
+.gallery-img {
+  width: 100%;
+  height: 250px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.load-more-btn {
+  margin-top: 30px;
+  padding: 12px 30px;
+  cursor: pointer;
+  border-radius: 20px;
+  border: 1px solid #2b2bbf;
+  background: white;
+  color: #2b2bbf;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.load-more-btn:hover {
+  background: #2b2bbf;
+  color: white;
+}
+
+/* Responsive cho Mobile */
+@media (max-width: 768px) {
+  .gallery-grid {
+    grid-template-columns: repeat(2, 1fr); /* 2 cột trên mobile */
+    gap: 10px;
+  }
+}

@@ -1,0 +1,73 @@
+/* Container chính chứa các tab */
+.all-post-main-layout {
+  width: 95%;
+
+  margin: 0 auto;
+  padding: 20px 0;
+}
+
+/* Biến wrapper từ dạng block thành flex để các tab đứng ngang hàng */
+/* Dùng class này để bọc ngoài danh sách tab của bạn */
+.tabs-container-row {
+  display: flex;
+  gap: 10px;
+  /* margin-bottom: 20px; */
+  width: 100%;
+}
+
+.tab-collapse-wrapper {
+  flex: 1; /* Chia đều 3 tab */
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+/* Style cho nút Tab */
+.tab-header {
+  width: 100%;
+  padding: 15px;
+  background-color: #eee;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  justify-content: center; /* Căn giữa chữ */
+  align-items: center;
+  transition: background 0.3s;
+}
+
+.tab-header.active {
+  background-color: #6a1b9a; /* Màu tím theo ảnh */
+  color: white;
+}
+
+/* Nội dung gallery bên dưới */
+.gallery-allpost-container {
+  /* padding: 5px; */
+  /* background-color: white; */
+  min-height: 400px; /* Giữ vị trí không bị nhảy */
+  /* border: 1px solid #ddd; */
+  /* border-radius: 8px; */
+  /* margin-top: -1px; Tạo hiệu ứng liền khối với tab */
+} /* dành cho empty */
+.empty-state {
+  grid-column: 1 / -1; /* Chiếm toàn bộ số cột của grid */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  width: 100%;
+}
+
+.empty-icon {
+  width: 150px; /* Kích thước mặc định */
+  height: auto;
+  margin-bottom: 20px;
+}
+
+.empty-state p {
+  font-size: 18px;
+  color: #888;
+}

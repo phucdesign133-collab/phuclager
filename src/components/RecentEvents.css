@@ -1,0 +1,111 @@
+.recent-container {
+  background: #ffffff; /* Nền trắng */
+  padding: 80px 0;
+  width: 100%;
+  overflow: hidden;
+}
+
+.recent-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  gap: 50px;
+}
+
+/* Tỉ lệ 25% cho text - 75% cho slider */
+.recent-text {
+  flex: 0 0 25%;
+  color: #333;
+}
+.recent-slider {
+  flex: 0 0 75%;
+  overflow: hidden;
+}
+
+.recent-title {
+  font-size: 2.7rem;
+  margin: 12px 0;
+  color: #000;
+}
+.recent-nav {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.recent-btn {
+  width: 44px;
+  height: 44px;
+  border: 1px solid #333; /* Viền đen */
+  border-radius: 50%;
+  background: none;
+  color: #333;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+.recent-track {
+  display: flex;
+  gap: 28px;
+}
+
+/* 1. Giữ nguyên kích thước ảnh, không để overlay làm ảnh bị zoom */
+.recent-card {
+  flex: 0 0 350px;
+  height: 500px;
+  border-radius: 24px;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+} .recent-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top; /* Giữ lại phần phía trên của ảnh thay vì lấy tâm ảnh */
+    background-color: #f0f0f0; /* Thêm màu nền để lấp khoảng trống nếu có */
+}
+/* 2. Overlay chỉ là lớp màu nền, không chứa chữ */
+.recent-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 90%;
+  padding: 20px;
+  height: 28%; /* Độ cao của vùng tối */
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, transparent 100%);
+  pointer-events: none; /* Để chuột xuyên qua lớp này */
+} 
+/* 3. Phần nội dung chữ nằm trên overlay */
+.recent-content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 90%;
+  padding: 20px;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end; /* Đẩy chữ xuống đáy */
+  z-index: 1;
+}
+
+.dim {
+  opacity: 0.45;
+  filter: blur(1px);
+}
+
+@media (max-width: 768px) {
+  .recent-inner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .recent-text {
+    flex: none;
+    width: 100%;
+  }
+}

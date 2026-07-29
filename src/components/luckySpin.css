@@ -1,0 +1,150 @@
+input,
+select,
+textarea {
+  font-size: 16px !important; /* Quan trọng nhất để chặn zoom */
+}
+.party-container {
+  padding: 25px;
+  max-width: 1050px;
+  margin: 10px auto;
+  border-radius: 24px;
+  background: radial-gradient(circle, #1a1625 0%, #0a0712 100%);
+  color: #fff;
+  text-align: center;
+}
+
+/* Popup Overlay */
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9998;
+}
+
+.popup-content {
+  background: #fff;
+  color: #333;
+  padding: 30px;
+  border-radius: 20px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  animation: popIn 0.3s ease-out;
+}
+
+@keyframes popIn {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.code-badge {
+  background: #f0f0f0;
+  padding: 10px;
+  margin: 15px 0;
+  font-weight: bold;
+  font-size: 1.2rem;
+  border-radius: 8px;
+}
+
+.close-btn {
+  background: #ccc;
+  margin-top: 10px;
+  display: block;
+  width: 100%;
+}
+input[type="date"] {
+  -webkit-appearance: none; /* Xóa giao diện mặc định của Safari/Chrome */
+  appearance: none;
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 8px;
+  background-color: #fff;
+  width: 100%; /* Đảm bảo nó chiếm đủ chiều rộng */
+  display: block;
+}
+/* Chặn zoom khi focus */
+input:focus,
+select:focus,
+textarea:focus {
+  font-size: 16px;
+}
+
+/* Định dạng chuẩn cho mọi input */
+input {
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  box-sizing: border-box; /* Quan trọng: để padding không làm vỡ khung */
+  border-radius: 8px;
+  border: 1px solid #444;
+  background: #222;
+  color: white;
+}
+.lightbox-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+/* Container chứa ảnh và nút X */
+.lightbox-content {
+  position: relative; /* Quan trọng để định vị nút X theo ảnh */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.lightbox-content img {
+  max-width: 90vw;
+  max-height: 80vh;
+  border-radius: 10px;
+}
+
+/* Định vị nút X nằm trên góc ảnh */
+.lightbox-close {
+  position: absolute;
+  top: -15px; /* Đẩy lên trên mép ảnh */
+  right: -15px; /* Đẩy sang phải mép ảnh */
+  background: white;
+  color: black;
+  border: 2px solid #333;
+  font-size: 20px;
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000000;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+.lightbox-hint {
+  color: #fff;
+  font-family: "Quicksand", sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.3);
+  padding: 5px 15px;
+  border-radius: 20px;
+}

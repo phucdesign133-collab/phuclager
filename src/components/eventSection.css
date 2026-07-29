@@ -1,0 +1,115 @@
+/* Container chính */
+.event-section-container,
+.design-section-container {
+  display: block;
+  width: 100%;
+  /* margin: 10px; */
+  gap: 20px !important;
+}
+.category-section {
+  width: 100%; /* Chiếm trọn bề ngang khung cha */
+  max-width: 1400px; /* Giới hạn độ rộng tối đa để không quá giãn trên màn hình lớn */
+  margin: 0 auto; /* Căn giữa trang */
+  padding: 0 15px; /* Tạo khoảng thở cho mobile */
+  box-sizing: border-box; /* Đảm bảo padding không làm vỡ width */
+} /* Đảm bảo menu bên trong cũng tuân thủ width này */
+.menu-gallery-wrapper {
+  width: 100%;
+  margin: 10px auto;
+  overflow: hidden; /* Ngăn nội dung con làm vỡ khung */
+}
+.filter-item-event-section {
+  flex: 0 0 auto; /* QUAN TRỌNG: Ngăn không cho item bị co lại */
+  min-width: 60px; /* Đảm bảo mỗi icon có không gian tối thiểu */
+  /* ...
+  Các thuộc tính còn lại ở MenuIconEventSection.css */
+}
+
+.right-content {
+  flex: 1 !important;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Lưới ảnh Desktop: Ép 4 cột */
+.gallery-grid {
+  display: grid !important;
+  grid-template-columns: repeat(4, 1fr) !important;
+  gap: 20px !important;
+  width: 100% !important;
+}
+
+/* Item chứa cả ảnh và chữ */
+.gallery-item {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  /* border: 1px solid #333; */
+  /* border-radius: 10px 10px 0 0; */
+  /* padding: 3px; */
+}
+
+/* Ảnh vuông 1:1 */
+.gallery-item img {
+  width: 100% !important;
+  aspect-ratio: 1 / 1 !important;
+  object-fit: cover !important;
+  border-radius: 8px !important;
+  display: block !important;
+}
+.gallery-item .item-info .project-name,
+.project-time,
+.event-section-container a {
+  display: block;
+  text-align: left !important;
+  text-decoration: none !important;
+}
+/* Thông tin dự án */
+.item-info {
+  margin-top: 8px;
+  text-align: left;
+}
+
+.project-name {
+  font-weight: bold;
+  margin: 0;
+  font-size: 0.9rem;
+  color: #333;
+}
+
+.project-time {
+  color: #888;
+  margin: 0;
+  font-size: 0.8rem;
+}
+.icon-event-section {
+  display: flex;
+  flex-direction: row; /* Thay đổi từ column sang row để icon nằm ngang */
+  flex-wrap: wrap;
+  height: 100px !important;
+  align-items: center;
+  gap: 15px;
+  overflow-x: visible;
+}
+.empty-state {
+  grid-column: 1 / -1; /* Chiếm toàn bộ số cột của grid */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  width: 100%;
+}
+
+/* Tùy chỉnh thêm cho icon nếu cần */
+.empty-state img.empty-icon {
+  width: 150px; /* Điều chỉnh kích thước icon */
+  margin-bottom: 20px; /* Tạo khoảng cách giữa icon và chữ */
+}
+/* Mobile: Ép 2 cột */
+@media (max-width: 768px) {
+  .gallery-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+}

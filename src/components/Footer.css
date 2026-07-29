@@ -1,0 +1,45 @@
+.footer-main {
+  background-color: #2b2b2b;
+  color: #ffffff;
+  padding: 30px 0;
+  width: 100%;
+}
+.footer-grid {
+  display: grid !important; /* Dùng !important để ép grid */
+  grid-template-columns: repeat(4, 1fr) !important;
+  gap: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+.footer-col h3 {
+  color: #ffffff;
+  margin-bottom: 20px;
+}
+.footer-col p,
+.footer-col a {
+  color: #ffffff !important;
+  text-decoration: none !important;
+  display: block;
+  margin-bottom: 8px;
+}
+.footer-copyright {
+  text-align: center;
+  margin-top: 40px;
+  border-top: 1px solid #444;
+  padding-top: 20px;
+}
+/* Container bọc toàn bộ cụm Logo và Chữ */
+.footer-logo {
+  max-width: 150px; /* Điều chỉnh kích thước logo cho vừa mắt */
+  height: auto; /* Tự động giữ tỉ lệ */
+  margin-bottom: 20px; /* Tạo khoảng cách với phần chữ bên dưới */
+  display: block;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .footer-grid {
+    grid-template-columns: 1fr !important;
+  }
+}

@@ -1,0 +1,110 @@
+.all-projects-section {
+  width: 95%; /* Mở rộng hơn */
+  max-width: 1400px; /* Rộng hơn để tương đồng ảnh */
+  margin: 40px auto;
+}
+
+.all-projects-title {
+  color: #4b0a7a;
+  font-size: 34px;
+  margin-bottom: 30px;
+  text-align: left; /* Căn trái theo ảnh */
+  padding-left: 20px;
+}
+/* Bao quanh menu để tạo khoảng cách */
+.menu-icon-wrapper {
+  margin-bottom: 20px;
+  width: 100%;
+  display: flex;
+  justify-content: flex-start; /* Canh trái như thiết kế */
+}
+
+/* Đảm bảo MenuIconEventSection không bị display: none */
+/* Nếu component MenuIconEventSection có class riêng, hãy đảm bảo: */
+.menu-icon-container {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+/* Thanh Tab ngang */
+.tabs-header {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+  padding: 0 20px;
+}
+
+.tab-btn {
+  padding: 12px 30px;
+  border: 1px solid #ddd;
+  background: #fff;
+  cursor: pointer;
+  font-weight: 600;
+  border-radius: 8px;
+  transition: 0.3s;
+}
+
+.tab-btn.active {
+  background: #6a1b9a;
+  color: #fff;
+  border-color: #6a1b9a;
+}
+
+/* Grid layout rộng rãi */
+.content-container {
+  /* padding: 20px; */
+  background: #f9f9f9;
+  border-radius: 16px;
+}
+
+.grid-layout {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px; /* Khoảng cách rộng hơn */
+  width: 100%;
+}
+
+.project-card {
+  background: #fff;
+  padding: 10px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); /* Thêm bóng đổ nhẹ cho sang */
+}
+
+.project-card img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+/* Thông tin dự án */
+.item-info {
+  margin-top: 8px;
+  text-align: left;
+}
+
+.project-name {
+  font-weight: bold;
+  margin: 0;
+  font-size: 0.9rem;
+  color: #333;
+}
+
+.project-time {
+  color: #888;
+  margin: 0;
+  font-size: 0.8rem;
+}
+/* Responsive */
+@media (max-width: 1024px) {
+  .grid-layout {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .grid-layout {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

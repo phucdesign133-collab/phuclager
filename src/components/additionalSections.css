@@ -1,0 +1,70 @@
+/* .additional-sections-container {
+  margin-top: 40px;
+  padding: 20px 0;
+} */
+
+/* Bài viết liên quan */
+.scroll-wrapper {
+  display: flex;
+  gap: 15px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory; /* Giúp cuộn dừng đúng vị trí ảnh */
+  padding-bottom: 10px;
+}
+
+.post-card {
+  min-width: 65%; /* Hiển thị 1.5 ảnh trên mobile */
+  scroll-snap-align: start;
+  cursor: pointer;
+}
+
+.post-card img {
+  width: 100%;
+  height: 180px; /* Chiều cao cố định */
+  object-fit: cover; /* Ảnh không bị méo */
+  border-radius: 8px;
+}
+
+.post-card p {
+  margin-top: 10px;
+  font-size: bold;
+  color: #333;
+  /* Giới hạn tên bài viết nếu quá dài */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Đối tác (Hiệu ứng chạy ngang) */
+.partners-section {
+  overflow: hidden;
+}
+.marquee {
+  background: #888;
+  padding: 20px 0;
+  display: flex;
+  width: 100%;
+}
+.marquee-content {
+  display: flex;
+  animation: marquee 30s linear infinite;
+  gap: 40px;
+}
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+.marquee-content img {
+  height: 60px;
+  filter: grayscale(1);
+} /* Logo xám */
+/* Trên desktop thì cho hiển thị nhiều hơn */
+@media (min-width: 768px) {
+  .post-card {
+    min-width: 25%;
+  }
+}
