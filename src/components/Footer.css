@@ -1,45 +1,34 @@
-.footer-main {
-  background-color: #2b2b2b;
-  color: #ffffff;
-  padding: 30px 0;
+.mobile-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
   width: 100%;
-}
-.footer-grid {
-  display: grid !important; /* Dùng !important để ép grid */
-  grid-template-columns: repeat(4, 1fr) !important;
-  gap: 30px;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 40px;
-}
-.footer-col h3 {
-  color: #ffffff;
-  margin-bottom: 20px;
-}
-.footer-col p,
-.footer-col a {
-  color: #ffffff !important;
-  text-decoration: none !important;
-  display: block;
-  margin-bottom: 8px;
-}
-.footer-copyright {
-  text-align: center;
-  margin-top: 40px;
-  border-top: 1px solid #444;
-  padding-top: 20px;
-}
-/* Container bọc toàn bộ cụm Logo và Chữ */
-.footer-logo {
-  max-width: 150px; /* Điều chỉnh kích thước logo cho vừa mắt */
-  height: auto; /* Tự động giữ tỉ lệ */
-  margin-bottom: 20px; /* Tạo khoảng cách với phần chữ bên dưới */
-  display: block;
+  height: 60px;
+  background: #ffffff;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  border-top: 1px solid #eee;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-  .footer-grid {
-    grid-template-columns: 1fr !important;
-  }
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  color: #777;
+  font-size: 10px;
+  flex: 1;
+  transition: color 0.2s;
+}
+
+.nav-icon {
+  font-size: 18px;
+  margin-bottom: 3px;
+}
+
+.nav-item:hover, .nav-item.active {
+  color: #b71c1c;
 }
