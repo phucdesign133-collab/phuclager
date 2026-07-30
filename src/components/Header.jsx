@@ -1,7 +1,6 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { galleryData } from "../datas/galleryData"; // Nhớ kiểm tra đường dẫn file đúng với project của bạn
-import "./Header.css";
+import "../css/Header.css";
 
 // Import các logo
 import LogoGroup from "../assets/images/logo-phucgroup.png";

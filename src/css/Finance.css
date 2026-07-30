@@ -1,11 +1,10 @@
+/* Khung bọc toàn bộ nội dung màn hình mobile */
 .finance-wrapper {
-  max-width: 600px;
-  margin: 20px auto;
-  padding: 20px;
-  background: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  font-family: inherit;
+  height: 100vh;           /* Chiều cao tối đa bằng màn hình */
+  max-height: 100vh;
+  overflow-y: auto;        /* Luôn luôn bật cuộn dọc */
+  padding-bottom: 60px;    /* Chừa khoảng trống phía dưới để không bị thanh menu đáy che mất nội dung */
+  box-sizing: border-box;
 }
 
 .finance-wrapper h2 {

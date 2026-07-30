@@ -29,16 +29,21 @@ function App() {
   }, []);
 
   return (
-    <>
+    <div className="app-container">
       <ScrollToTop />
       <Header />
-      <Routes>
-        {/* Chỉ giữ lại trang Finance làm trọng tâm */}
-        <Route path="/" element={<Finance />} />
-        <Route path="/finance" element={<Finance />} />
-      </Routes>
+      
+      {/* Vùng nội dung chính được phép cuộn độc lập mượt mà ở giữa */}
+      <div className="app-content">
+        <Routes>
+          {/* Chỉ giữ lại trang Finance làm trọng tâm */}
+          <Route path="/" element={<Finance />} />
+          <Route path="/finance" element={<Finance />} />
+        </Routes>
+      </div>
+
       <Footer />
-    </>
+    </div>
   );
 }
 
