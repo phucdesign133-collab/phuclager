@@ -1,99 +1,73 @@
-import { useNavigate, useLocation } from "react-router-dom";
-import { useState, useEffect } from "react";
-import "../css/Header.css";
+import React from 'react';
+import '../css/Header.css';
 
-// Import các logo
-import LogoGroup from "../assets/images/logo-phucgroup.png";
-import LogoDesign from "../assets/images/logo-phucdesign.png";
-import LogoParty from "../assets/images/logo-phucparty.png";
-
-// Import LogoDayNe theo public path (hoặc bạn có thể import từ src nếu để chung thư mục assets)
-const LogoDayNe = "/img/logodayne-1.webp";
-
-import { FaTimes, FaBars } from "react-icons/fa";
-
-const Header = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-  const handleMenuClick = (path) => {
-    setIsMenuOpen(false); // Đóng menu mobile
-    navigate(path); // Điều hướng tới trang mong muốn
-  };
-
-  const [currentLogo, setCurrentLogo] = useState(LogoGroup);
-
-  const updateLogo = () => {
-    // 1. Kiểm tra nếu đang ở khu vực Balloon Club thì dùng logo Đây Nè!
-    if (location.pathname.includes("/balloon-club")) {
-      return LogoDayNe;
-    }
-
-    const categoryFromState = location.state?.category;
-    const searchParams = new URLSearchParams(location.search);
-    const categoryFromURL = searchParams.get("filter");
-
-    let currentCat = categoryFromState || categoryFromURL;
-
-    if (!currentCat) {
-      if (location.pathname.includes("/post/")) {
-        const pathParts = location.pathname.split("/");
-        const slug = pathParts[pathParts.length - 1];
-
-        const project = galleryData.find((item) => item.slug === slug);
-        currentCat = project ? project.category : "thiet-ke";
-      } else if (location.pathname.includes("/all-post")) {
-        currentCat = "su-kien";
-      }
-    }
-
-    if (currentCat === "su-kien") return LogoParty;
-    if (currentCat === "thiet-ke") return LogoDesign;
-    return LogoGroup;
-  };
-
-  // Luôn cập nhật logo khi location thay đổi
-  useEffect(() => {
-    setCurrentLogo(updateLogo());
-  }, [location]);
-
-  return (
-    <header className="main-header">
-      <div className="header-container">
-        <div className="header-logo-wrapper" onClick={() => handleMenuClick("/")}>
-          <img src={currentLogo} alt="Logo" className="logo-img" />
-        </div>
-        <button className="hamburger-btn" onClick={() => setIsMenuOpen(true)}>
-          <FaBars size={24} />
-        </button>
-      </div>
-
-      <nav className={`header-nav ${isMenuOpen ? "nav-open" : ""}`}>
-        <div className="menu-header-mobile">
-          <div className="menu-logo-mobile">
-            <img src={currentLogo} alt="Logo" />
-          </div>
-          <button className="close-btn" onClick={() => setIsMenuOpen(false)}>
-            <FaTimes size={24} />
-          </button>
-        </div>
-
-        <div className="nav-link" onClick={() => handleMenuClick("/")}>
-          Home
-        </div>
-        <div className="nav-link" onClick={() => handleMenuClick("/gallery")}>
-          Gallery
-        </div>
-        <div className="nav-link" onClick={() => handleMenuClick("/balloon-club")}>
-          Balloon Club
-        </div>
-        <div className="nav-link" onClick={() => handleMenuClick("/lucky-spin")}>
-          Lucky Spin
-        </div>
-      </nav>
-    </header>
-  );
+// Dữ liệu bộ lọc đúng chuẩn 5 mục lớn tương ứng với 5 icon
+export const dropdownData = {
+  finance: [
+    { value: "thu-chi-moi-ngay", label: "Thu chi mỗi ngày" },
+    { value: "tong-so-du", label: "Tổng số dư" },
+    { value: "the-tin-dung", label: "Thẻ tín dụng" },
+    { value: "tong-du-no", label: "Tổng dư nợ" },
+  ],
+  goal: [
+    { value: "muc-tieu-ngan-han", label: "Mục tiêu ngắn hạn (trong 1 năm)" },
+    { value: "muc-tieu-dai-han", label: "Mục tiêu dài hạn (sau 2 năm)" },
+  ],
+  client: [
+    { value: "mang-cong-viec", label: "Mảng công việc" },
+    { value: "doi-tac", label: "Đối tác" },
+    { value: "them-khach-hang", label: "Thêm khách hàng" },
+    { value: "xoa-khach-hang", label: "Vuốt qua trái để xoá khách hàng" },
+  ],
+  social: [
+    { value: "quan-ly-bai-dang", label: "Quản lý bài đăng" },
+    { value: "quan-ly-src-raw", label: "Quản lý src raw" },
+    { value: "quan-ly-clip-dung", label: "Quản lý clip dựng" },
+    { value: "quan-ly-thumb", label: "Quản lý thumb" },
+    { value: "theo-doi-nen-tang", label: "Theo dõi các nền tảng" },
+    { value: "quan-ly-series", label: "Quản lý chuỗi các Series" },
+  ],
+  supplies: [
+    { value: "kho-lam-show", label: "Kho làm show" },
+    { value: "kho-do-dung", label: "Kho đồ dùng ở trọ" },
+    { value: "tu-quan-ao", label: "Tủ quần áo" },
+  ],
 };
 
-export default Header;
+// Bản đồ chuyển đổi tên tab sang tiêu đề hiển thị (Đã đồng bộ key: goal, client, supplies)
+const tabTitles = {
+  finance: "Quản lý tài chính",
+  goal: "Quản lý mục tiêu",
+  client: "Quản lý khách hàng",
+  social: "Quản lý MXH",
+  supplies: "Quản lý vật tư"
+};
+
+export default function Header({ currentTab = 'finance', value, onChange, onUpdate }) {
+  const options = dropdownData[currentTab] || dropdownData.finance;
+
+  return (
+    <div className="sticky-header-container">
+      <h2 style={{ display: "flex", justifyContent: "center" }}>
+        {tabTitles[currentTab] || "Quản lý tài chính"}
+      </h2>
+      <div className="dropdown-container">
+        <select 
+          className="common-select" 
+          value={value} 
+          onChange={(e) => onChange(e.target.value)}
+        >
+          {options.map((item, index) => (
+            <option key={index} value={item.value}>
+              {item.label}
+            </option>
+          ))}
+        </select>
+        
+        <button className="dropdown-update-btn" onClick={onUpdate}>
+          Cập nhật
+        </button>
+      </div>
+    </div>
+  );
+}

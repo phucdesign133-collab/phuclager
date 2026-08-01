@@ -25,6 +25,18 @@
   padding-bottom: 8px;
   border-bottom: 1px solid #eee;
 }
+.grid-header-right {
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 600;
+}
+.trend-down {
+  color: #d9534f;
+}
+.trend-up {
+  color: #5cb85c;
+}
 
 .grid-date {
   font-size: 14px;
@@ -38,11 +50,11 @@
 }
 
 .trend-up {
-  color: var(--primary-green, #58D68D);
+  color: var(--primary-green, #58d68d);
 }
 
 .trend-down {
-  color: var(--primary-red, #EC7063);
+  color: var(--primary-red, #ec7063);
 }
 
 .grid-body {
@@ -69,11 +81,11 @@
 }
 
 .value.green {
-  color: var(--primary-green, #58D68D);
+  color: var(--primary-green, #58d68d);
 }
 
 .value.red {
-  color: var(--primary-red, #EC7063);
+  color: var(--primary-red, #ec7063);
 }
 
 .value.neutral {
@@ -104,4 +116,6 @@
 }
 
 /* Đoạn custom grid */
-.none-border{border-bottom: none !important;}
+.none-border {
+  border-bottom: none !important;
+}

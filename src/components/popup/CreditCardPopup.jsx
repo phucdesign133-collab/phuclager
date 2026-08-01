@@ -251,7 +251,7 @@ export default function CreditCardPopup({ isOpen, onClose, onSave, currentDate, 
               style={{ backgroundColor: '#f1f3f5', cursor: 'not-allowed', fontWeight: '600', color: '#2b8a3e' }} 
             />
           </div>
-
+ 
           <div className="form-group">
             <label>Phí rút (1.8%):</label>
             <input 

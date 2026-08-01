@@ -13,7 +13,9 @@
   --primary-black: #566573;
   --primary-dark-red: #C0392B;
 }
-
+input, select, textarea {
+  font-size: 16px !important; /* Chặn đứng tình trạng iOS tự động zoom */
+}
 html, body {
   margin: 0;
   padding: 0;

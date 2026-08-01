@@ -145,7 +145,7 @@ export default function DebtPopup({ isOpen, onClose, onAddDebt }) {
 
           <div className="debt-popup-field">
             <label>7. Ghi chú</label>
-            <input 
+            <input  
               type="text" 
               placeholder="Nhập ghi chú (nếu có)..." 
               value={note} 

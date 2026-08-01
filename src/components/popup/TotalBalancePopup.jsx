@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../../css/DailyIncomeExpensePopup.css';
 
 export default function TotalBalancePopup({ isOpen, onClose, onSave, currentDate, lastSavedData }) {
@@ -14,11 +14,33 @@ export default function TotalBalancePopup({ isOpen, onClose, onSave, currentDate
     note: ''
   });
 
+  const formatCurrencyInput = (value) => {
+    if (!value) return '';
+    const numberString = String(value).replace(/\D/g, '');
+    if (!numberString) return '';
+    return Number(numberString).toLocaleString('vi-VN');
+  };
+
+  useEffect(() => {
+    setBalanceData({
+      techKonto: '',
+      vibKonto: '',
+      tpKonto: '',
+      vpKonto: '',
+      grabKonto: '',
+      kassenfrisch: '',
+      dasBargeld: '',
+      eWallet: '',
+      note: ''
+    });
+  }, [currentDate, lastSavedData]);
+
   if (!isOpen) return null;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setBalanceData(prev => ({ ...prev, [name]: value }));
+    const newValue = name === 'note' ? value : formatCurrencyInput(value);
+    setBalanceData(prev => ({ ...prev, [name]: newValue }));
   };
 
   const handleSubmit = (e) => {
@@ -26,7 +48,7 @@ export default function TotalBalancePopup({ isOpen, onClose, onSave, currentDate
 
     const previousValues = lastSavedData || {
       techKonto: 37225655,
-      vibKonto: 150000,
+      vibKonto: 150000, 
       tpKonto: 479,
       vpKonto: 0,
       grabKonto: 330783,
@@ -45,7 +67,6 @@ export default function TotalBalancePopup({ isOpen, onClose, onSave, currentDate
           formattedData[key] = Number(previousValues[key]) || 0;
         } else {
           try {
-            // Cho phép nhập biểu thức dạng "35000000 + 2000000", tự động tính toán kết quả
             const sanitizedExpr = String(val).replace(/\./g, '').replace(/[^0-9+\-*/.]/g, '');
             // eslint-disable-next-line no-eval
             const calculatedResult = eval(sanitizedExpr);
@@ -62,7 +83,6 @@ export default function TotalBalancePopup({ isOpen, onClose, onSave, currentDate
       details: formattedData
     });
 
-    // Reset form về trống sau khi submit
     setBalanceData({
       techKonto: '',
       vibKonto: '',
@@ -78,7 +98,6 @@ export default function TotalBalancePopup({ isOpen, onClose, onSave, currentDate
     onClose();
   };
 
-  // Thiết lập placeholder động từ dữ liệu mới nhất
   const placeholders = lastSavedData ? {
     techKonto: Number(lastSavedData.techKonto || 0).toLocaleString('vi-VN'),
     vibKonto: Number(lastSavedData.vibKonto || 0).toLocaleString('vi-VN'),
@@ -101,14 +120,16 @@ export default function TotalBalancePopup({ isOpen, onClose, onSave, currentDate
 
   return (
     <div className="popup-overlay" onClick={onClose}>
-      <div className="popup-container" onClick={(e) => e.stopPropagation()}>
-        <div className="popup-header">
+      {/* Thêm style display flex cho container để chia bố cục Header - Body - Footer cố định */}
+      <div className="popup-container" onClick={(e) => e.stopPropagation()} style={{ display: 'flex', flexDirection: 'column', maxHeight: '85vh' }}>
+        <div className="popup-header" style={{ flexShrink: 0 }}>
           <h3>Cập nhật tổng tài sản ({currentDate})</h3>
           <button className="close-btn" onClick={onClose}>&times;</button>
         </div>
 
-        <form onSubmit={handleSubmit}>
-          <div className="popup-body">
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
+          {/* Body có scroll riêng */}
+          <div className="popup-body" style={{ flex: 1, overflowY: 'auto', paddingRight: '4px' }}>
             <div className="form-group">
               <label>1. Tài khoản Techcombank</label>
               <input type="text" name="techKonto" value={balanceData.techKonto} onChange={handleChange} placeholder={placeholders.techKonto} />
@@ -147,7 +168,8 @@ export default function TotalBalancePopup({ isOpen, onClose, onSave, currentDate
             </div>
           </div>
 
-          <div className="popup-footer">
+          {/* Footer chứa nút cập nhật luôn bám đáy */}
+          <div className="popup-footer" style={{ flexShrink: 0 }}>
             <button type="submit" className="submit-update-btn">Cập nhật</button>
           </div>
         </form>
