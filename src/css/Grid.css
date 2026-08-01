@@ -212,3 +212,224 @@
   .debt-row .value.due-date { color: var(--primary-green); font-weight: 700; }
   .note-row { background-color: var(--bg-color); padding: 8px; border-radius: 6px; }
   .note-text { color: var(--primary-black); font-weight: 500 !important; }
+
+   /* ==========================================
+ * PHẦN RIÊNG BIỆT của GRID SERIES trong SOCIAL
+ * ========================================== */
+
+/* Header cố định khi cuộn */
+.social-header-sticky {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fff;
+  padding: 12px 16px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.social-back-btn {
+  background: #f1f3f5;
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 750;
+  color: #495057;
+}
+
+.social-title-heading {
+  margin: 0;
+  color: var(--primary-dark-red, #c92a2a);
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.social-add-btn {
+  background: var(--primary-dark-red, #c92a2a);
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 20px;
+  font-weight: 600;
+  box-shadow: 0 4px 10px rgba(201, 42, 42, 0.3);
+}
+
+.social-no-data {
+  padding: 20px;
+  text-align: center;
+  background: #fff;
+  border-radius: 12px;
+}
+
+/* Khung Card chính chia đôi Trái - Phải */
+.social-item-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+  gap: 16px;
+}
+
+/* Cụm thông tin văn bản bên trái */
+.social-item-content-left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 8px;
+}
+
+/* Tiêu đề tập kèm nút Sửa/Xóa */
+.social-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 8px;
+  margin-bottom: 4px;
+}
+
+.social-item-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--primary-dark-red, #c92a2a);
+}
+
+.social-item-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.social-action-edit-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #3182ce;
+  font-size: 14px;
+}
+
+.social-action-delete-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #e53e3e;
+  font-size: 14px;
+}
+
+/* Các dòng thông tin chi tiết */
+.social-item-details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.social-chapter-label {
+  font-weight: 600;
+  color: #4a5568;
+}
+
+.social-platforms-wrapper {
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.social-platform-badges {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.social-platform-tag {
+  padding: 2px 8px;
+  background: #edf2f7;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #2b6cb0;
+  text-decoration: none;
+}
+
+.social-no-platform {
+  font-size: 12px;
+  color: #a0aec0;
+  font-style: italic;
+}
+
+/* Khung hiển thị ảnh ở bên phải */
+.social-item-image-right {
+  flex-shrink: 0;
+  width: 90px;
+  height: 160px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.social-item-image-right img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.social-item-no-image {
+  font-size: 11px;
+  color: #a0aec0;
+  text-align: center;
+  padding: 4px;
+}
+/* Thêm style cho phần hiển thị danh sách 3 nền tảng chuẩn icon ô vuông */
+.social-platforms-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.social-platform-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.platform-link {
+  color: #2b6cb0;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.platform-link:hover {
+  text-decoration: underline;
+}
+
+.platform-unlinked {
+  color: #a0aec0;
+}

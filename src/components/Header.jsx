@@ -1,42 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import '../css/Header.css';
-import SearchBar from './searchBar';
+import { dropdownData } from '../datas/dropdownData';
 
-// Dữ liệu bộ lọc đúng chuẩn 5 mục lớn tương ứng với 5 icon
-export const dropdownData = {
-  finance: [
-    { value: "thu-chi-moi-ngay", label: "Thu chi mỗi ngày" },
-    { value: "tong-so-du", label: "Tổng số dư" },
-    { value: "the-tin-dung", label: "Thẻ tín dụng" },
-    { value: "tong-du-no", label: "Tổng dư nợ" },
-  ],
-  goal: [
-    { value: "muc-tieu-ngan-han", label: "Mục tiêu ngắn hạn" },
-    { value: "muc-tieu-dai-han", label: "Mục tiêu dài hạn" },
-  ],
-  client: [
-    { value: "khach-su-kien", label: "Khách sự kiện" },
-    { value: "khach-thiet-ke", label: "Khách thiết kế" },
-    { value: "khach-workshop", label: "Khách workshop" },
-    { value: "doi-tac-thien-nguyen", label: "Đối tác thiện nguyện" },
-    { value: "doi-tac-nha-cung-cap", label: "Đối tác nhà cung cấp" },
-  ],
-  social: [
-    { value: "quan-ly-bai-dang", label: "Quản lý bài đăng" },
-    { value: "quan-ly-src-raw", label: "Quản lý src raw" },
-    { value: "quan-ly-clip-dung", label: "Quản lý clip dựng" },
-    { value: "quan-ly-thumb", label: "Quản lý thumb" },
-    { value: "theo-doi-nen-tang", label: "Theo dõi các nền tảng" },
-    { value: "quan-ly-series", label: "Quản lý chuỗi các Series" },
-  ],
-  supplies: [
-    { value: "kho-lam-show", label: "Kho làm show" },
-    { value: "kho-do-dung", label: "Kho đồ dùng ở trọ" },
-    { value: "tu-quan-ao", label: "Tủ quần áo" },
-  ],
-};
-
-// Bản đồ chuyển đổi tên tab sang tiêu đề hiển thị
 const tabTitles = {
   finance: "Quản lý tài chính",
   goal: "Quản lý mục tiêu",
@@ -47,9 +12,6 @@ const tabTitles = {
 
 export default function Header({ currentTab = 'finance', value, onChange, onUpdate, searchTerm, setSearchTerm }) {
   const options = dropdownData[currentTab] || dropdownData.finance;
-
-  // Danh sách các tab được phép hiện thanh tìm kiếm: client, social, supplies (3 tab cuối)
-  const searchAllowedTabs = ["client", "social", "supplies"];
 
   return (
     <div className="sticky-header-container">
@@ -70,19 +32,10 @@ export default function Header({ currentTab = 'finance', value, onChange, onUpda
           ))}
         </select>
         
-        <button className="dropdown-update-btn" onClick={onUpdate}>
+        <button type="button" className="dropdown-update-btn" onClick={onUpdate}>
           Cập nhật
         </button>
       </div>
-
-      {/* Chỉ hiển thị SearchBar ở 3 tab cuối: client, social, supplies */}
-      {searchAllowedTabs.includes(currentTab) && (
-        <SearchBar 
-          searchTerm={searchTerm} 
-          setSearchTerm={setSearchTerm} 
-          placeholder={`Tìm kiếm trong ${tabTitles[currentTab] || "dữ liệu"}...`}
-        />
-      )}
     </div>
   );
 }

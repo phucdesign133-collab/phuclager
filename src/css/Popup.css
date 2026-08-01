@@ -216,3 +216,62 @@
   color: var(--primary-dark-red, #c92a2a);
   font-weight: 600;
 }
+
+/* ==========================================
+   MXH_POPUP.CSS - CSS RIÊNG CHO QUẢN LÝ SERIES
+   ========================================== */
+
+.preview-filename-box {
+  background-color: #f1f3f5;
+  border: 1px dashed #ced4da;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: #495057;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.preview-filename-box span {
+  font-weight: 600;
+  color: var(--primary-dark-red, #c92a2a);
+}
+
+.platform-links-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: #f8f9fa;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.platform-input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.platform-input-row label {
+  min-width: 80px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #495057;
+}
+
+.platform-input-row input {
+  flex: 1;
+  padding: 8px 10px;
+  font-size: 13px;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  outline: none;
+  background: #fff;
+}
+
+.platform-input-row input:focus {
+  border-color: var(--primary-dark-red, #c92a2a);
+  box-shadow: 0 0 0 2px rgba(201, 42, 42, 0.1);
+}

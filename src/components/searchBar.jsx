@@ -19,14 +19,7 @@ export default function SearchBar({ searchTerm, setSearchTerm, placeholder }) {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           placeholder={placeholder || "Tìm kiếm..."}
-          style={{ margin:"0 !important",padding:"0 !important",
-            border: "none", 
-            background: "transparent", 
-            outline: "none", 
-            width: "100%", 
-            fontSize: "13.5px",
-            color: "#1e293b"
-          }}
+          className="custom-search-input"
         />
       </div>
     </div>

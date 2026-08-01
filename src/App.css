@@ -194,3 +194,16 @@ input {
   background: #cbd5e1;
   border-radius: 3px;
 }
+
+/* Đảm bảo đè bẹp mọi style input tổng toàn cục */
+input.custom-search-input {
+  margin: 0 !important;
+  padding: 6px 0 !important;
+  border: none !important;
+  background: transparent !important;
+  outline: none !important;
+  width: 100% !important;
+  font-size: 13.5px !important;
+  color: #1e293b !important;
+  box-sizing: border-box !important;
+}

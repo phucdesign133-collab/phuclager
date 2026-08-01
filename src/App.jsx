@@ -1,16 +1,17 @@
 import { Routes, Route, useLocation } from "react-router-dom";
 import React, { useEffect, useState } from "react";
+import { dropdownData } from "./datas/dropdownData";
 import "./App.css";
 
 // Components
-import Header, { dropdownData } from "./components/Header";
+import Header from "./components/Header";
 import Footer from "./components/Footer";
 
 // Pages
 import Finance from "./pages/Finance";
 import Goal from "./pages/Goal";
 // import Client from "./pages/Client";
-// import Social from "./pages/Social";
+import Social from "./pages/Social";
 // import Supplies from "./pages/Supplies";
 
 const ScrollToTop = () => {
@@ -24,7 +25,6 @@ const ScrollToTop = () => {
 function App() {
   const location = useLocation();
 
-  // Xác định tab hiện tại dựa trên URL
   const getCurrentTab = () => {
     const path = location.pathname;
     if (path.includes("/goal")) return "goal";
@@ -36,21 +36,28 @@ function App() {
 
   const currentTab = getCurrentTab();
 
-  // State lưu giá trị đang chọn trong dropdown, mặc định lấy phần tử đầu tiên của tab hiện tại
   const [selectedValue, setSelectedValue] = useState(() => {
     const options = dropdownData[currentTab] || dropdownData.finance;
     return options[0]?.value || "";
   });
 
-  // State quản lý việc bật/tắt popup chung khi bấm nút Cập nhật trên Header
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
-  // Khi chuyển tab lớn ở Footer, tự động reset giá trị dropdown về mục đầu tiên của tab đó
+  // State lưu tên series đang mở trong tab Social để ẩn Header khi vào SocialList
+  const [activeSocialSeries, setActiveSocialSeries] = useState(null);
+
+  // Reset activeSocialSeries mỗi khi đổi tab hoặc đổi URL
+  useEffect(() => {
+    setActiveSocialSeries(null);
+  }, [location.pathname]);
+
   useEffect(() => {
     const options = dropdownData[currentTab] || dropdownData.finance;
     if (options.length > 0) {
       setSelectedValue(options[0].value);
     }
+    setSearchTerm("");
   }, [location.pathname]);
 
   useEffect(() => {
@@ -62,9 +69,8 @@ function App() {
   }, []);
 
   const handleUpdateClick = () => {
-    // Kiểm tra logic trước khi mở popup nếu cần (ví dụ Thẻ tín dụng)
     if (currentTab === "finance" && selectedValue === "the-tin-dung") {
-      // Có thể xử lý riêng nếu chưa chọn thẻ ở trang Finance
+      // Xử lý riêng nếu cần
     }
     setIsPopupOpen(true);
   };
@@ -73,18 +79,25 @@ function App() {
     <div className="app-container">
       <ScrollToTop />
 
-      {/* Header cố định trên cùng */}
-      <Header currentTab={currentTab} value={selectedValue} onChange={(val) => setSelectedValue(val)} onUpdate={handleUpdateClick} />
-
-      {/* Vùng nội dung chính */}
+      {/* Chỉ hiển thị Header khi không ở tab Social đang xem SocialList */}
+      {!(currentTab === "social" && activeSocialSeries) && (
+        <Header
+          currentTab={currentTab}
+          value={selectedValue}
+          onChange={setSelectedValue}
+          onUpdate={handleUpdateClick}
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+        />
+      )}
+      
       <div className="app-content">
         <Routes>
           <Route path="/" element={<Finance selectedFilter={selectedValue} isPopupOpen={isPopupOpen} setIsPopupOpen={setIsPopupOpen} />} />
           <Route path="/finance" element={<Finance selectedFilter={selectedValue} isPopupOpen={isPopupOpen} setIsPopupOpen={setIsPopupOpen} />} />
-          {/* Các route tiếp theo cho tương lai */}
           <Route path="/goal" element={<Goal selectedFilter={selectedValue} isPopupOpen={isPopupOpen} setIsPopupOpen={setIsPopupOpen} />} />
           {/* <Route path="/client" element={<Client selectedFilter={selectedValue} isPopupOpen={isPopupOpen} setIsPopupOpen={setIsPopupOpen} />} /> */}
-          {/* <Route path="/social" element={<Social selectedFilter={selectedValue} isPopupOpen={isPopupOpen} setIsPopupOpen={setIsPopupOpen} />} /> */}
+          <Route path="/social" element={<Social selectedFilter={selectedValue} isPopupOpen={isPopupOpen} setIsPopupOpen={setIsPopupOpen} onActiveSeriesChange={setActiveSocialSeries} />} />
           {/* <Route path="/supplies" element={<Supplies selectedFilter={selectedValue} isPopupOpen={isPopupOpen} setIsPopupOpen={setIsPopupOpen} />} /> */}
         </Routes>
       </div>
