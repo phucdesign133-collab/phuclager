@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import "../../css/CreditCardPopup.css";
+import "../../css/Popup.css";
 
 export default function CreditCardPopup({ isOpen, onClose, onSave, currentDate, selectedCard, lastSavedData }) {
   if (!isOpen) return null;

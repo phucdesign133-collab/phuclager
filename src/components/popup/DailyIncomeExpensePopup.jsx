@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import '../../css/DailyIncomeExpensePopup.css';
+import '../../css/Popup.css';
 
 export default function DailyIncomeExpensePopup({ isOpen, onClose, currentDate, onSave, lastSavedData }) {
   if (!isOpen) return null;

@@ -10,8 +10,8 @@ export const dropdownData = {
     { value: "tong-du-no", label: "Tổng dư nợ" },
   ],
   goal: [
-    { value: "muc-tieu-ngan-han", label: "Mục tiêu ngắn hạn (trong 1 năm)" },
-    { value: "muc-tieu-dai-han", label: "Mục tiêu dài hạn (sau 2 năm)" },
+    { value: "muc-tieu-ngan-han", label: "Mục tiêu ngắn hạn" },
+    { value: "muc-tieu-dai-han", label: "Mục tiêu dài hạn" },
   ],
   client: [
     { value: "mang-cong-viec", label: "Mảng công việc" },

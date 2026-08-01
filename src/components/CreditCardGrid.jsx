@@ -1,8 +1,9 @@
 import React from 'react';
-import "../css/CreditCardGrid.css";
+import "../css/Grid.css";
+import { getCurrentDateFormatted } from './utils/utils';
 
 export default function CreditCardGrid({ selectedCard, rawData }) {
-  const currentDate = "30/07/2026";
+  const currentDate = getCurrentDateFormatted();
   
   const cardNames = {
     techcombank: 'Techcombank',

@@ -1,5 +1,5 @@
 import React from 'react';
-import '../css/DailyIncomeExpenseGrid.css';
+import '../css/Grid.css';
 
 export default function TotalBalanceGrid({ rawData = [] }) {
   // Chỉ lọc dữ liệu thuộc tháng 8/2026 theo đúng yêu cầu

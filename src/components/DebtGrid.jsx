@@ -1,5 +1,5 @@
 import React from 'react';
-import '../css/DebtGrid.css';
+import '../css/Grid.css';
 
 export default function DebtGrid({ rawData = [] }) {
   const safeData = Array.isArray(rawData) ? rawData : [];

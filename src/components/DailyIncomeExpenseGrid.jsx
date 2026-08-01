@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import '../css/DailyIncomeExpenseGrid.css';
+import '../css/Grid.css';
 import DailyIncomeExpensePopup from './popup/DailyIncomeExpensePopup';
 
 export default function DailyIncomeExpenseGrid({ rawData = [], onUpdateData }) {

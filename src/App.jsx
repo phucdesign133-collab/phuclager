@@ -8,7 +8,7 @@ import Footer from "./components/Footer";
 
 // Pages
 import Finance from "./pages/Finance";
-// import Goal from "./pages/Goal";
+import Goal from "./pages/Goal";
 // import Client from "./pages/Client";
 // import Social from "./pages/Social";
 // import Supplies from "./pages/Supplies";
@@ -72,40 +72,17 @@ function App() {
   return (
     <div className="app-container">
       <ScrollToTop />
-      
+
       {/* Header cố định trên cùng */}
-      <Header 
-        currentTab={currentTab} 
-        value={selectedValue} 
-        onChange={(val) => setSelectedValue(val)}
-        onUpdate={handleUpdateClick}
-      />
-      
+      <Header currentTab={currentTab} value={selectedValue} onChange={(val) => setSelectedValue(val)} onUpdate={handleUpdateClick} />
+
       {/* Vùng nội dung chính */}
       <div className="app-content">
         <Routes>
-          <Route 
-            path="/" 
-            element={
-              <Finance 
-                selectedFilter={selectedValue} 
-                isPopupOpen={isPopupOpen} 
-                setIsPopupOpen={setIsPopupOpen} 
-              />
-            } 
-          />
-          <Route 
-            path="/finance" 
-            element={
-              <Finance 
-                selectedFilter={selectedValue} 
-                isPopupOpen={isPopupOpen} 
-                setIsPopupOpen={setIsPopupOpen} 
-              />
-            } 
-          />
+          <Route path="/" element={<Finance selectedFilter={selectedValue} isPopupOpen={isPopupOpen} setIsPopupOpen={setIsPopupOpen} />} />
+          <Route path="/finance" element={<Finance selectedFilter={selectedValue} isPopupOpen={isPopupOpen} setIsPopupOpen={setIsPopupOpen} />} />
           {/* Các route tiếp theo cho tương lai */}
-          {/* <Route path="/goal" element={<Goal selectedFilter={selectedValue} isPopupOpen={isPopupOpen} setIsPopupOpen={setIsPopupOpen} />} /> */}
+          <Route path="/goal" element={<Goal selectedFilter={selectedValue} isPopupOpen={isPopupOpen} setIsPopupOpen={setIsPopupOpen} />} />
           {/* <Route path="/client" element={<Client selectedFilter={selectedValue} isPopupOpen={isPopupOpen} setIsPopupOpen={setIsPopupOpen} />} /> */}
           {/* <Route path="/social" element={<Social selectedFilter={selectedValue} isPopupOpen={isPopupOpen} setIsPopupOpen={setIsPopupOpen} />} /> */}
           {/* <Route path="/supplies" element={<Supplies selectedFilter={selectedValue} isPopupOpen={isPopupOpen} setIsPopupOpen={setIsPopupOpen} />} /> */}

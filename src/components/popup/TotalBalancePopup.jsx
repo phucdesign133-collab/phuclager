@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import '../../css/DailyIncomeExpensePopup.css';
+import '../../css/Popup.css';
 
 export default function TotalBalancePopup({ isOpen, onClose, onSave, currentDate, lastSavedData }) {
   const [balanceData, setBalanceData] = useState({

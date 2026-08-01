@@ -12,11 +12,11 @@ export default function Footer() {
         <FaWallet className="nav-icon" />
         <span>Tài chính</span>
       </Link>
-      <Link to="/goals" className={location.pathname === '/goals' ? 'nav-item active' : 'nav-item'}>
+      <Link to="/goal" className={location.pathname === '/goal' ? 'nav-item active' : 'nav-item'}>
         <FaBullseye className="nav-icon" />
         <span>Mục tiêu</span>
       </Link>
-      <Link to="/clients" className={location.pathname === '/clients' ? 'nav-item active' : 'nav-item'}>
+      <Link to="/client" className={location.pathname === '/clients' ? 'nav-item active' : 'nav-item'}>
         <FaAddressBook className="nav-icon" />
         <span>Khách hàng</span>
       </Link>

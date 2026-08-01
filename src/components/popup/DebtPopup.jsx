@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import '../../css/DebtPopup.css';
+import '../../css/Popup.css';
 
 export default function DebtPopup({ isOpen, onClose, onAddDebt }) {
   const [creditor, setCreditor] = useState('');

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import "../css/Finance.css";
+import "../css/Tab.css";
 
 // Components
 import DailyIncomeExpenseGrid from "../components/DailyIncomeExpenseGrid";
