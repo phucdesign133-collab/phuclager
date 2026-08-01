@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import '../css/Header.css';
+import SearchBar from './searchBar';
 
 // Dữ liệu bộ lọc đúng chuẩn 5 mục lớn tương ứng với 5 icon
 export const dropdownData = {
@@ -19,7 +20,7 @@ export const dropdownData = {
     { value: "khach-workshop", label: "Khách workshop" },
     { value: "doi-tac-thien-nguyen", label: "Đối tác thiện nguyện" },
     { value: "doi-tac-nha-cung-cap", label: "Đối tác nhà cung cấp" },
-],
+  ],
   social: [
     { value: "quan-ly-bai-dang", label: "Quản lý bài đăng" },
     { value: "quan-ly-src-raw", label: "Quản lý src raw" },
@@ -35,7 +36,7 @@ export const dropdownData = {
   ],
 };
 
-// Bản đồ chuyển đổi tên tab sang tiêu đề hiển thị (Đã đồng bộ key: goal, client, supplies)
+// Bản đồ chuyển đổi tên tab sang tiêu đề hiển thị
 const tabTitles = {
   finance: "Quản lý tài chính",
   goal: "Quản lý mục tiêu",
@@ -44,14 +45,18 @@ const tabTitles = {
   supplies: "Quản lý vật tư"
 };
 
-export default function Header({ currentTab = 'finance', value, onChange, onUpdate }) {
+export default function Header({ currentTab = 'finance', value, onChange, onUpdate, searchTerm, setSearchTerm }) {
   const options = dropdownData[currentTab] || dropdownData.finance;
+
+  // Danh sách các tab được phép hiện thanh tìm kiếm: client, social, supplies (3 tab cuối)
+  const searchAllowedTabs = ["client", "social", "supplies"];
 
   return (
     <div className="sticky-header-container">
       <h2 style={{ display: "flex", justifyContent: "center" }}>
         {tabTitles[currentTab] || "Quản lý tài chính"}
       </h2>
+      
       <div className="dropdown-container">
         <select 
           className="common-select" 
@@ -69,6 +74,15 @@ export default function Header({ currentTab = 'finance', value, onChange, onUpda
           Cập nhật
         </button>
       </div>
+
+      {/* Chỉ hiển thị SearchBar ở 3 tab cuối: client, social, supplies */}
+      {searchAllowedTabs.includes(currentTab) && (
+        <SearchBar 
+          searchTerm={searchTerm} 
+          setSearchTerm={setSearchTerm} 
+          placeholder={`Tìm kiếm trong ${tabTitles[currentTab] || "dữ liệu"}...`}
+        />
+      )}
     </div>
   );
 }

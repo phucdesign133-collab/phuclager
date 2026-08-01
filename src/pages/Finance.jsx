@@ -228,7 +228,23 @@ export default function Finance({ selectedFilter, isPopupOpen, setIsPopupOpen })
         <>
           <CreditCardIconGrid selectedCard={activeCreditCard} onSelectCard={(cardId) => setActiveCreditCard(cardId)} allCardsData={creditCardData} />
 
-          {activeCreditCard && <CreditCardGrid selectedCard={activeCreditCard} rawData={creditCardData[activeCreditCard] || null} />}
+          {activeCreditCard && (
+            <CreditCardGrid 
+              selectedCard={activeCreditCard} 
+              rawData={creditCardData[activeCreditCard] || null} 
+              onEdit={(cardId, data) => {
+                setActiveCreditCard(cardId);
+                setIsPopupOpen(true);
+              }}
+              onDelete={(cardId) => {
+                setCreditCardData((prev) => {
+                  const updated = { ...prev };
+                  delete updated[cardId];
+                  return updated;
+                });
+              }}
+            />
+          )}
 
           <CreditCardPopup
             isOpen={isPopupOpen}

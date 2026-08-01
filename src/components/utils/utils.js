@@ -17,13 +17,15 @@ export const formatCurrency = (amount) => {
 /**
  * Lấy ngày tháng hiện tại theo định dạng chuẩn YYYY-MM-DD
  */
-export const getCurrentDateFormatted = () => {
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, '0');
-  const day = String(today.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-};
+export function getCurrentDateFormatted() {
+  const date = new Date();
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+  
+  // Trả về định dạng dd/mm/yyyy
+  return `${day}/${month}/${year}`;
+}
 
 /**
  * Xử lý dynamicDate: Tạo danh sách các ngày trong tháng hiện tại hoặc tháng được chọn

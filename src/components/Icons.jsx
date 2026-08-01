@@ -1,7 +1,7 @@
 import React from "react";
 
 // Gom icon từ nhiều nguồn khác nhau vào đây
-import { FaEdit, FaTrash, FaCalendarAlt, FaBullseye, FaMoneyBillWave } from "react-icons/fa";
+import { FaEdit, FaTrash, FaCalendarAlt, FaBullseye, FaMoneyBillWave,FaSearch  } from "react-icons/fa";
 import { MdFlag, MdSave, MdClose, MdOutlineDateRange } from "react-icons/md";
 import { BsCheckCircle, BsPlusLg } from "react-icons/bs";
 
