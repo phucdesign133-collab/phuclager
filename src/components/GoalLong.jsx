@@ -1,5 +1,7 @@
 import React from "react";
 import "../css/Grid.css";
+// Import các icon từ file quản lý tập trung của bạn
+import { EditIcon, TrashIcon, CalendarIcon} from "../components/Icons";
 
 export default function GoalLong({ rawData, onEdit, onDelete }) {
   if (!rawData || rawData.length === 0) {
@@ -50,31 +52,36 @@ export default function GoalLong({ rawData, onEdit, onDelete }) {
                   style={{ background: "none", border: "none", cursor: "pointer", fontSize: "15px" }}
                   title="Chỉnh sửa mục tiêu"
                 >
-                  ✏️
+                  <EditIcon size={16} color="#4a5568" />
                 </button>
                 <button 
                   onClick={() => onDelete && onDelete(index)} 
                   style={{ background: "none", border: "none", cursor: "pointer", fontSize: "15px" }}
                   title="Xóa mục tiêu"
                 >
-                  ❌
+                  <TrashIcon size={15} color="#e53e3e" />
                 </button>
               </div>
             </div>
 
             <div className="grid-body">
               <div className="grid-row">
-                <span className="label">⏳ Thời gian:</span>
+                <span className="label">
+                  <CalendarIcon style={{ marginRight: "5px", color: "#3182ce" }} /> Thời gian:
+                </span>
                 <span className="value">{item.startDate} - {item.endDate}</span>
               </div>
 
               <div className="grid-row">
-                <span className="label">⌛ Tổng thời gian:</span>
+                <span className="label">
+                  Tổng thời gian:
+                </span>
                 <span className="value">{item.totalMonths} tháng ({item.totalDays} ngày)</span>
               </div>
 
               <div className="note-row note-text">
-                💡 <strong>Mục đích:</strong> {item.purpose || "Không có"}
+                {/* <LightbulbIcon style={{ marginRight: "5px", color: "#d69e2e", verticalAlign: "middle" }} />  */}
+                <strong>Mục đích:</strong> {item.purpose || "Không có"}
               </div>
 
               <div className="grid-row total-row">
@@ -88,13 +95,15 @@ export default function GoalLong({ rawData, onEdit, onDelete }) {
                 </div>
               </div>
 
-              {/* --- 2 THANH TIẾN ĐỘ THIẾT KẾ MỚI --- */}
+              {/* --- 2 THANH TIẾN ĐỘ --- */}
               <div style={{ marginTop: "12px", borderTop: "1px dashed #e2e8f0", paddingTop: "10px", display: "flex", flexDirection: "column", gap: "10px" }}>
                 
                 {/* 1. Tiến độ thời gian */}
                 <div>
                   <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12.5px", marginBottom: "4px" }}>
-                    <span style={{ color: "#4a5568", fontWeight: "500" }}>⏳ Tiến độ thời gian</span>
+                    <span style={{ color: "#4a5568", fontWeight: "500" }}>
+                     Tiến độ thời gian
+                    </span>
                     <span style={{ color: "#2d3748", fontWeight: "600" }}>{timeProg.passedDays} / {timeProg.totalDays} ngày</span>
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
@@ -120,8 +129,6 @@ export default function GoalLong({ rawData, onEdit, onDelete }) {
                 </div>
 
               </div>
-              {/* ---------------------------------- */}
-
             </div>
           </div>
         );

@@ -14,11 +14,12 @@ export const dropdownData = {
     { value: "muc-tieu-dai-han", label: "Mục tiêu dài hạn" },
   ],
   client: [
-    { value: "mang-cong-viec", label: "Mảng công việc" },
-    { value: "doi-tac", label: "Đối tác" },
-    { value: "them-khach-hang", label: "Thêm khách hàng" },
-    { value: "xoa-khach-hang", label: "Vuốt qua trái để xoá khách hàng" },
-  ],
+    { value: "khach-su-kien", label: "Khách sự kiện" },
+    { value: "khach-thiet-ke", label: "Khách thiết kế" },
+    { value: "khach-workshop", label: "Khách workshop" },
+    { value: "doi-tac-thien-nguyen", label: "Đối tác thiện nguyện" },
+    { value: "doi-tac-nha-cung-cap", label: "Đối tác nhà cung cấp" },
+],
   social: [
     { value: "quan-ly-bai-dang", label: "Quản lý bài đăng" },
     { value: "quan-ly-src-raw", label: "Quản lý src raw" },
