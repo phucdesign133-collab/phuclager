@@ -24,6 +24,7 @@ export const dropdownData = {
     // { value: "quan-ly-thumb", label: "Quản lý thumb" },
     // { value: "theo-doi-nen-tang", label: "Theo dõi các nền tảng" },
     { value: "quan-ly-series", label: "Quản lý Series" },
+    { value: "quan-ly-ideas", label: "Quản lý Ideas" },
   ],
   supplies: [
     { value: "kho-lam-show", label: "Kho làm show" },
