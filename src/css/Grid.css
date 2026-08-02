@@ -213,23 +213,46 @@
   .note-row { background-color: var(--bg-color); padding: 8px; border-radius: 6px; }
   .note-text { color: var(--primary-black); font-weight: 500 !important; }
 
-   /* ==========================================
+ /* ==========================================
  * PHẦN RIÊNG BIỆT của GRID SERIES trong SOCIAL
  * ========================================== */
 
-/* Header cố định khi cuộn */
+/* Header cố định khi cuộn kèm background đầy đủ */
 .social-header-sticky {
   position: sticky;
   top: 0;
   z-index: 100;
-  margin-bottom: 16px;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: 10px;
   background: #fff;
   padding: 12px 16px;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.social-header-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.social-search-bar-wrapper {
+  width: 100%;
+}
+
+/* Tùy chỉnh ô input của SearchBar nằm trong header cố định (Không dùng hover/focus) */
+.social-search-bar-wrapper input,
+.social-search-bar-wrapper .search-bar-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 12px;
+  border: 1px solid #dcdde1;
+  border-radius: 8px;
+  font-size: 13.5px;
+  outline: none;
+  background: #f8fafc;
 }
 
 .social-back-btn {
@@ -275,6 +298,7 @@
   text-align: center;
   background: #fff;
   border-radius: 12px;
+  width: 90%;
 }
 
 /* Khung Card chính chia đôi Trái - Phải */
@@ -405,6 +429,7 @@
   text-align: center;
   padding: 4px;
 }
+
 /* Thêm style cho phần hiển thị danh sách 3 nền tảng chuẩn icon ô vuông */
 .social-platforms-list {
   display: flex;
@@ -424,10 +449,6 @@
   color: #2b6cb0;
   text-decoration: none;
   font-weight: 600;
-}
-
-.platform-link:hover {
-  text-decoration: underline;
 }
 
 .platform-unlinked {

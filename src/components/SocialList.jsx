@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import "../css/Grid.css";
 import { EditIcon, TrashIcon } from './Icons';
+import SearchBar from "./searchBar";
 
 // Hàm dịch clipName hoặc keyWord sang tiếng Việt nếu cần
 const translateClipNameToVietnamese = (name) => {
@@ -22,41 +23,63 @@ const translateClipNameToVietnamese = (name) => {
 };
 
 export default function SocialList({ activeSeries, seriesItems, onBack, onOpenAddPopup, onEditItem, onDeleteItem }) {
+  // State quản lý từ khóa tìm kiếm
+  const [searchTerm, setSearchTerm] = useState('');
+
   if (!activeSeries) return null;
+
+  // Sắp xếp các mục theo thứ tự số mục (episode) giảm dần: mới nhất/lớn nhất lên trên
+  const sortedItems = seriesItems ? [...seriesItems].map((item, originalIndex) => ({ ...item, originalIndex })).sort((a, b) => {
+    const epA = Number(a.episode) || 0;
+    const epB = Number(b.episode) || 0;
+    return epB - epA;
+  }) : [];
 
   return (
     <div className="grid-container">
-      {/* Header riêng biệt của SocialList: Cố định khi cuộn */}
+      {/* Header riêng biệt của SocialList: Cố định khi cuộn (Chứa cả nút Back, Tiêu đề, Nút Add và Thanh SearchBar) */}
       <div className="social-header-sticky">
-        <button 
-          type="button" 
-          onClick={onBack}
-          title="Quay lại danh sách Series"
-          className="social-back-btn"
-        >
-          ←
-        </button>
+        <div className="social-header-top-row">
+          <button 
+            type="button" 
+            onClick={onBack}
+            title="Quay lại danh sách Series"
+            className="social-back-btn"
+          >
+            ←
+          </button>
 
-        <h3 className="social-title-heading">
-          {activeSeries.toUpperCase()}
-        </h3>
+          <h3 className="social-title-heading">
+            {activeSeries.toUpperCase()}
+          </h3>
 
-        <button 
-          type="button" 
-          onClick={onOpenAddPopup}
-          title="Thêm tập mới cho series"
-          className="social-add-btn"
-        >
-          +
-        </button>
+          <button 
+            type="button" 
+            onClick={onOpenAddPopup}
+            title="Thêm mục mới cho series"
+            className="social-add-btn"
+          >
+            +
+          </button>
+        </div>
+
+        {/* Thanh tìm kiếm nằm bên trong header cố định, lọc theo tiêu đề */}
+        <div className="social-search-bar-wrapper">
+          <SearchBar 
+            searchTerm={searchTerm} 
+            setSearchTerm={setSearchTerm} 
+            placeholder="Tìm kiếm theo tiêu đề..."
+          />
+        </div>
       </div>
 
-      {(!seriesItems || seriesItems.length === 0) ? (
+      {(!sortedItems || sortedItems.length === 0) ? (
         <div className="grid-no-data social-no-data">
-          Chưa có tập nào trong series này. Bấm dấu cộng (+) ở góc phải để thêm tập mới.
+          Chưa có mục nào trong series này. Bấm dấu cộng (+) ở góc phải để thêm mục mới.
         </div>
       ) : (
-        seriesItems.map((item, index) => {
+        sortedItems.map((item, index) => {
+          const actualIndex = item.originalIndex;
           const seriesNameUpper = (item.seriesName || activeSeries).toUpperCase();
           const paddedEpisode = item.episode ? String(item.episode).padStart(3, '0') : '000';
           
@@ -67,6 +90,12 @@ export default function SocialList({ activeSeries, seriesItems, onBack, onOpenAd
           
           const chapterDisplay = item.chapter ? `Chapter ${item.chapter}` : '';
 
+          // Lọc theo tiêu đề (nếu không khớp với từ khóa tìm kiếm thì ẩn đi)
+          const matchesSearch = titleDisplay.toLowerCase().includes(searchTerm.toLowerCase());
+          if (searchTerm.trim() !== '' && !matchesSearch) {
+            return null;
+          }
+
           // Danh sách 3 nền tảng cố định
           const platformsConfig = [
             { name: 'Meta', link: item.linkReelsFB },
@@ -75,7 +104,7 @@ export default function SocialList({ activeSeries, seriesItems, onBack, onOpenAd
           ];
 
           return (
-            <div key={index} className="social-item-card">
+            <div key={actualIndex} className="social-item-card">
               {/* BÊN TRÁI: Cụm thông tin văn bản */}
               <div className="social-item-content-left">
                 <div className="social-item-header">
@@ -86,8 +115,8 @@ export default function SocialList({ activeSeries, seriesItems, onBack, onOpenAd
                   <div className="social-item-actions">
                     <button 
                       type="button"
-                      onClick={() => onEditItem && onEditItem(item, index)} 
-                      title="Chỉnh sửa tập"
+                      onClick={() => onEditItem && onEditItem(item, actualIndex)} 
+                      title="Chỉnh sửa mục"
                       className="social-action-edit-btn"
                     >
                       <EditIcon />
@@ -95,11 +124,11 @@ export default function SocialList({ activeSeries, seriesItems, onBack, onOpenAd
                     <button 
                       type="button"
                       onClick={() => {
-                        if (window.confirm(`Bạn có chắc chắn muốn xóa tập này không?`)) {
-                          onDeleteItem && onDeleteItem(index);
+                        if (window.confirm(`Bạn có chắc chắn muốn xóa mục này không?`)) {
+                          onDeleteItem && onDeleteItem(actualIndex);
                         }
                       }} 
-                      title="Xóa tập"
+                      title="Xóa mục"
                       className="social-action-delete-btn"
                     >
                       <TrashIcon />
@@ -113,8 +142,6 @@ export default function SocialList({ activeSeries, seriesItems, onBack, onOpenAd
                       <span className="info-label social-chapter-label">{chapterDisplay}</span>
                     </div>
                   )}
-
-                  {/* Đã xóa trường Tên clip/mẫu ở đây cho gọn gàng */}
 
                   <div className="info-row social-platforms-wrapper">
                     <span className="info-label">Nền tảng đã đăng:</span>

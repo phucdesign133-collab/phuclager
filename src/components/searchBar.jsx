@@ -2,7 +2,7 @@ import React from "react";
 
 export default function SearchBar({ searchTerm, setSearchTerm, placeholder }) {
   return (
-    <div className="search-bar-container" style={{ margin: "8px 16px 4px 16px" }}>
+    <div className="search-bar-container" >
       <div style={{ 
         display: "flex", 
         alignItems: "center", 

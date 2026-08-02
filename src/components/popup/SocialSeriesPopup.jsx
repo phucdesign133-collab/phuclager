@@ -74,18 +74,18 @@ export default function SocialSeriesPopup({ isOpen, onClose, onSave, lastSavedDa
     <div className="popup-overlay">
       <div className="popup-container">
         <div className="popup-header">
-          <h3>{lastSavedData ? "Cập Nhật Tập Series" : "Thêm Tập Mới"}</h3>
+          <h3>{lastSavedData ? "Cập Nhật mục Series" : "Thêm mục Mới"}</h3>
           <button type="button" className="popup-close-btn" onClick={onClose}>&times;</button>
         </div>
         
         <form onSubmit={handleSubmit} className="popup-form">
           <div className="form-group">
-            <label>Số thứ tự tập (VD: 20):</label>
+            <label>Số thứ tự mục (VD: 20):</label>
             <input 
               type="text" 
               value={episode} 
               onChange={(e) => setEpisode(e.target.value)} 
-              placeholder="Nhập số thứ tự tập..." 
+              placeholder="Nhập số thứ tự mục..." 
               required
             />
           </div>

@@ -6,7 +6,7 @@ import SocialPopup from "../components/popup/SocialPopup";
 import SocialSeriesPopup from "../components/popup/SocialSeriesPopup"; // ✅ Import popup tập
 
 export default function Social({ selectedFilter, isPopupOpen, setIsPopupOpen, onActiveSeriesChange }) {
-  // 1. Lưu trữ thông tin định hướng (Title, Purpose) của từng series riêng biệt
+  // 1. Lưu trữ thông tin định hướng (Title, Purpose, updatedAt) của từng series riêng biệt
   const [seriesMeta, setSeriesMeta] = useState(() => {
     const saved = localStorage.getItem("phuc_lager_series_meta");
     return saved ? JSON.parse(saved) : {};
@@ -43,31 +43,40 @@ export default function Social({ selectedFilter, isPopupOpen, setIsPopupOpen, on
     }
   }, [activeSeries, onActiveSeriesChange]);
 
-  // Gom dữ liệu chuẩn xác để SocialGrid nhận diện được cả title lẫn purpose mà không làm hỏng mảng episodes
+  // Gom dữ liệu chuẩn xác để SocialGrid nhận diện được cả title, purpose và thời gian updatedAt (cả cha lẫn con)
   const gridFormattedData = React.useMemo(() => {
     const result = {};
     Object.keys(seriesMeta).forEach((code) => {
-      const meta = seriesMeta[code];
+      const meta = seriesMeta[code] || {};
       const episodes = seriesEpisodes[code] || [];
       
       const listCopy = [...episodes];
       listCopy.seriesName = meta.title;
       listCopy.purpose = meta.purpose;
+      // Lấy thời gian cập nhật của cha hoặc thời gian mới nhất từ các tập con bên trong
+      listCopy.updatedAt = meta.updatedAt || 0;
+      
       result[code] = listCopy;
     });
     return result;
   }, [seriesMeta, seriesEpisodes]);
 
-  // Chỉ lưu thông tin series từ popup lớn
+  // Chỉ lưu thông tin series từ popup lớn (Cập nhật updatedAt cho cha)
   const handleSaveSeries = (newData) => {
     const targetCode = (newData.code || "").trim().toLowerCase();
     if (!targetCode) return;
+
+    const currentTime = Date.now();
 
     setSeriesMeta((prevMeta) => {
       const updated = { ...prevMeta };
 
       if (editingSeriesCode && editingSeriesCode !== targetCode) {
-        updated[targetCode] = { title: newData.title, purpose: newData.purpose };
+        updated[targetCode] = { 
+          title: newData.title, 
+          purpose: newData.purpose, 
+          updatedAt: currentTime 
+        };
         delete updated[editingSeriesCode];
 
         setSeriesEpisodes((prevEp) => {
@@ -79,7 +88,11 @@ export default function Social({ selectedFilter, isPopupOpen, setIsPopupOpen, on
           return epUpdated;
         });
       } else {
-        updated[targetCode] = { title: newData.title, purpose: newData.purpose };
+        updated[targetCode] = { 
+          title: newData.title, 
+          purpose: newData.purpose, 
+          updatedAt: currentTime // Đẩy lên đầu khi chỉnh sửa/tạo series cha
+        };
       }
 
       return updated;
@@ -90,9 +103,11 @@ export default function Social({ selectedFilter, isPopupOpen, setIsPopupOpen, on
     setEditingSeriesData(null);
   };
 
-  // ✅ Hàm lưu tập mới hoặc cập nhật tập hiện tại từ SocialSeriesPopup
+  // ✅ Hàm lưu tập mới hoặc cập nhật tập hiện tại từ SocialSeriesPopup (Đồng thời cập nhật updatedAt cho series cha để đẩy lên đầu)
   const handleSaveEpisode = (episodeData) => {
     if (!activeSeries) return;
+
+    const currentTime = Date.now();
 
     setSeriesEpisodes((prev) => {
       const updated = { ...prev };
@@ -106,6 +121,18 @@ export default function Social({ selectedFilter, isPopupOpen, setIsPopupOpen, on
 
       updated[activeSeries] = list;
       return updated;
+    });
+
+    // Cập nhật lại thời gian updatedAt của series cha tương ứng để nó tự động nhảy lên đầu ở SocialGrid
+    setSeriesMeta((prevMeta) => {
+      const currentMeta = prevMeta[activeSeries] || {};
+      return {
+        ...prevMeta,
+        [activeSeries]: {
+          ...currentMeta,
+          updatedAt: currentTime
+        }
+      };
     });
 
     setIsEpisodePopupOpen(false);
@@ -153,25 +180,35 @@ export default function Social({ selectedFilter, isPopupOpen, setIsPopupOpen, on
             setEditingSeriesCode(null);
             setEditingSeriesData(null);
           }}
-          // ✅ Truyền props kích hoạt popup thêm tập mới (dấu +)
           onOpenAddPopup={() => {
             setEditingEpisodeIndex(null);
             setEditingEpisodeData(null);
             setIsEpisodePopupOpen(true);
           }}
-          // ✅ Truyền props kích hoạt popup sửa tập
           onEditItem={(item, index) => {
             setEditingEpisodeIndex(index);
             setEditingEpisodeData(item);
             setIsEpisodePopupOpen(true);
           }}
           onDeleteItem={(index) => {
+            const currentTime = Date.now();
             setSeriesEpisodes((prev) => {
               const updated = { ...prev };
               const list = [...(updated[activeSeries] || [])];
               list.splice(index, 1);
               updated[activeSeries] = list;
               return updated;
+            });
+            // Cập nhật lại thời gian khi xóa tập con để phản ánh thay đổi mới nhất
+            setSeriesMeta((prevMeta) => {
+              const currentMeta = prevMeta[activeSeries] || {};
+              return {
+                ...prevMeta,
+                [activeSeries]: {
+                  ...currentMeta,
+                  updatedAt: currentTime
+                }
+              };
             });
           }}
         />

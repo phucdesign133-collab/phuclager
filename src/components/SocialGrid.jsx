@@ -4,7 +4,16 @@ import { getSeriesDisplayName } from '../datas/seriesNameMapping';
 import { EditIcon, TrashIcon } from './Icons';
 
 export default function SocialGrid({ rawData, onSelectSeries, onEditSeries, onDeleteSeries }) {
-  const seriesKeys = rawData ? Object.keys(rawData) : [];
+  // Lấy danh sách các key và sắp xếp giảm dần theo thời gian updatedAt (mới nhất/vừa cập nhật lên trên)
+  const seriesKeys = rawData ? Object.keys(rawData).sort((a, b) => {
+    const listA = rawData[a] || [];
+    const listB = rawData[b] || [];
+    
+    const timeA = listA.updatedAt || 0;
+    const timeB = listB.updatedAt || 0;
+    
+    return timeB - timeA;
+  }) : [];
 
   if (seriesKeys.length === 0) {
     return (
@@ -22,10 +31,7 @@ export default function SocialGrid({ rawData, onSelectSeries, onEditSeries, onDe
           const seriesDataList = rawData[seriesKey] || [];
           const latestItem = seriesDataList[seriesDataList.length - 1] || {};
           
-          // ✅ FIX: Lấy purpose trực tiếp từ mảng seriesDataList trước, nếu không có mới tìm trong latestItem
           const purposeText = seriesDataList.purpose || latestItem.purpose || "Chưa có định hướng / slogan cho series này.";
-          
-          // ✅ Lấy tên hiển thị từ seriesName (nếu có) hoặc qua hàm mapping
           const displayName = seriesDataList.seriesName || getSeriesDisplayName(seriesKey);
 
           return (
@@ -52,7 +58,7 @@ export default function SocialGrid({ rawData, onSelectSeries, onEditSeries, onDe
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                   <span style={{ fontSize: '12px', background: '#f1f3f5', padding: '2px 8px', borderRadius: '10px', color: '#495057' }}>
-                    {seriesDataList.length} tập
+                    {seriesDataList.length} mục
                   </span>
 
                   {/* Nút sửa/xóa Series */}
