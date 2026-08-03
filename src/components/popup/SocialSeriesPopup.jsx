@@ -35,68 +35,80 @@ export default function SocialSeriesPopup({ isOpen, onClose, onSave, lastSavedDa
     }
   }, [isOpen, lastSavedData]);
 
-  // Xử lý nén ảnh tối ưu dưới 50Kb
+  // Xử lý chọn và nén ảnh tương thích hoàn hảo với iOS Safari & PC
   const handleImageChange = (e) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const img = new Image();
-        img.src = event.target.result;
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          let width = img.width;
-          let height = img.height;
+    if (!file) return;
 
-          const MAX_WIDTH = 600;
-          if (width > MAX_WIDTH) {
-            height = Math.round((height * MAX_WIDTH) / width);
-            width = MAX_WIDTH;
-          }
-
-          canvas.width = width;
-          canvas.height = height;
-
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, width, height);
-
-          let quality = 0.6;
-          const targetMaxSize = 50 * 1024;
-
-          const tryCompress = (q) => {
-            canvas.toBlob(
-              (blob) => {
-                if (!blob) return;
-                if (blob.size > targetMaxSize && q > 0.1) {
-                  tryCompress(q - 0.1);
-                } else {
-                  const currentKey = keyWord.trim() || file.name.substring(0, file.name.lastIndexOf('.')) || 'image';
-                  const cleanKeyName = currentKey.toLowerCase().replace(/\s+/g, '-');
-
-                  const compressedFile = new File([blob], `${cleanKeyName}.webp`, {
-                    type: 'image/webp',
-                    lastModified: Date.now(),
-                  });
-
-                  setImageFile(compressedFile);
-                  setImagePreview(URL.createObjectURL(blob));
-                }
-              },
-              'image/webp',
-              q
-            );
-          };
-
-          tryCompress(quality);
-        };
-      };
-      reader.readAsDataURL(file);
-
-      if (!keyWord.trim()) {
-        const nameWithoutExt = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
-        setKeyWord(nameWithoutExt.toLowerCase().replace(/\s+/g, '-'));
-      }
+    // Tự sinh key nếu chưa có
+    let generatedKey = keyWord.trim();
+    if (!generatedKey) {
+      const baseName = clipName.trim() || file.name.substring(0, file.name.lastIndexOf('.')) || `item-${episode || 'img'}`;
+      generatedKey = baseName.toLowerCase().replace(/[^a-z0-9]/g, '-');
+      setKeyWord(generatedKey);
     }
+
+    const reader = new FileReader();
+    reader.onerror = () => {
+      // Fallback an toàn cho iOS nếu FileReader lỗi
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
+    };
+
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onerror = () => {
+        setImageFile(file);
+        setImagePreview(URL.createObjectURL(file));
+      };
+      img.src = event.target.result;
+      
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        const MAX_WIDTH = 600;
+        if (width > MAX_WIDTH) {
+          height = Math.round((height * MAX_WIDTH) / width);
+          width = MAX_WIDTH;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          setImageFile(file);
+          setImagePreview(URL.createObjectURL(file));
+          return;
+        }
+
+        ctx.drawImage(img, 0, 0, width, height);
+
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) {
+              setImageFile(file);
+              setImagePreview(URL.createObjectURL(file));
+              return;
+            }
+
+            const cleanKeyName = generatedKey.toLowerCase().replace(/\s+/g, '-');
+            const compressedFile = new File([blob], `${cleanKeyName}.webp`, {
+              type: 'image/webp',
+              lastModified: Date.now(),
+            });
+
+            setImageFile(compressedFile);
+            setImagePreview(URL.createObjectURL(blob));
+          },
+          'image/webp',
+          0.7
+        );
+      };
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleRemoveImage = () => {
@@ -104,8 +116,7 @@ export default function SocialSeriesPopup({ isOpen, onClose, onSave, lastSavedDa
     setImagePreview('');
   };
 
-  const trimmedKey = keyWord.trim().toLowerCase();
-  const isKeyAvailable = trimmedKey.length > 0;
+  const trimmedKey = keyWord.trim().toLowerCase() || (clipName ? clipName.toLowerCase().replace(/[^a-z0-9]/g, '-') : `item-${episode || Date.now()}`);
   const isDuplicateKey = existingKeys && existingKeys.includes(trimmedKey) && trimmedKey !== (lastSavedData?.keyWord || '').toLowerCase();
 
   const handleDateChange = (e) => {
@@ -127,8 +138,9 @@ export default function SocialSeriesPopup({ isOpen, onClose, onSave, lastSavedDa
     let finalImageUrl = imagePreview;
 
     try {
-      if (imageFile && isKeyAvailable) {
-        const fileName = `${trimmedKey}.webp`;
+      // Nếu có chọn file ảnh mới thì tiến hành đẩy lên Supabase Storage
+      if (imageFile) {
+        const fileName = `${trimmedKey}-${Date.now()}.webp`;
         const filePath = `uploads/${fileName}`;
 
         const { error: uploadError } = await supabase.storage
@@ -158,7 +170,7 @@ export default function SocialSeriesPopup({ isOpen, onClose, onSave, lastSavedDa
       publishDateRaw: publishDateInput,
       chapter: publishDateInput,
       clipName,
-      keyWord,
+      keyWord: trimmedKey,
       imagePreview: finalImageUrl,
       thumbnail_url: finalImageUrl,
       postedMeta,
@@ -220,12 +232,11 @@ export default function SocialSeriesPopup({ isOpen, onClose, onSave, lastSavedDa
                 type="text" 
                 value={keyWord} 
                 onChange={(e) => setKeyWord(e.target.value)} 
-                placeholder="Nhập key tiếng Anh..." 
+                placeholder="Tự sinh nếu để trống..." 
                 style={{ 
                   flex: 1, 
-                  borderColor: isKeyAvailable ? (isDuplicateKey ? '#e53e3e' : '#38a169') : '#cbd5e0',
-                  color: isKeyAvailable ? (isDuplicateKey ? '#e53e3e' : '#38a169') : '#2d3748',
-                  fontWeight: isKeyAvailable ? 'bold' : 'normal'
+                  borderColor: isDuplicateKey ? '#e53e3e' : '#cbd5e0',
+                  color: isDuplicateKey ? '#e53e3e' : '#2d3748'
                 }}
               />
               <label className="upload-btn-label" style={{ 
@@ -255,7 +266,7 @@ export default function SocialSeriesPopup({ isOpen, onClose, onSave, lastSavedDa
               <div style={{ marginTop: '6px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#f8f9fa', padding: '6px 10px', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <img src={imagePreview} alt="Preview" style={{ width: '36px', height: '36px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #cbd5e0' }} />
-                  <span style={{ fontSize: '12px', color: '#4a5568' }}>Đã nén tối ưu dưới 50Kb!</span>
+                  <span style={{ fontSize: '12px', color: '#4a5568' }}>Đã sẵn sàng tải lên mây!</span>
                 </div>
                 <button 
                   type="button" 
@@ -290,7 +301,7 @@ export default function SocialSeriesPopup({ isOpen, onClose, onSave, lastSavedDa
                 />
                 YouTube
               </label>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: '500', color: '#2d3748' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '14px', fontWeight: '500', color: '#2d3748' }}>
                 <input 
                   type="checkbox" 
                   checked={postedTikTok} 
