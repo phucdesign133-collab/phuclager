@@ -1,7 +1,7 @@
 import React from "react";
 import "../css/Grid.css";
 // Import các icon từ file quản lý tập trung của bạn
-import { EditIcon, TrashIcon, CalendarIcon,   } from "../components/Icons";
+import { EditIcon, TrashIcon, CalendarIcon } from "../components/Icons";
 
 export default function GoalShort({ rawData, onEdit, onDelete }) {
   if (!rawData || rawData.length === 0) {
@@ -48,6 +48,7 @@ export default function GoalShort({ rawData, onEdit, onDelete }) {
               <span className="grid-date" style={{ fontWeight: "700", fontSize: "15px" }}>{item.goalName}</span>
               <div style={{ display: "flex", gap: "8px" }}>
                 <button 
+                  type="button"
                   onClick={() => onEdit && onEdit(item, index)} 
                   style={{ background: "none", border: "none", cursor: "pointer", fontSize: "15px" }}
                   title="Chỉnh sửa mục tiêu"
@@ -55,6 +56,7 @@ export default function GoalShort({ rawData, onEdit, onDelete }) {
                   <EditIcon size={16} color="#4a5568" />
                 </button>
                 <button 
+                  type="button"
                   onClick={() => onDelete && onDelete(index)} 
                   style={{ background: "none", border: "none", cursor: "pointer", fontSize: "15px" }}
                   title="Xóa mục tiêu"
@@ -87,11 +89,11 @@ export default function GoalShort({ rawData, onEdit, onDelete }) {
               <div className="grid-row total-row">
                 <div>
                   <div className="label" style={{ fontSize: "11px" }}>Dự trù chi phí</div>
-                  <div className="value text-red">{item.cost?.toLocaleString("vi-VN")} đ</div>
+                  <div className="value text-red">{Number(item.cost || 0).toLocaleString("vi-VN")} đ</div>
                 </div>
                 <div style={{ textAlign: "right" }}>
                   <div className="label" style={{ fontSize: "11px" }}>Bỏ heo mỗi ngày</div>
-                  <div className="value text-green">{item.dailySaving?.toLocaleString("vi-VN")} đ/ngày</div>
+                  <div className="value text-green">{Number(item.dailySaving || 0).toLocaleString("vi-VN")} đ/ngày</div>
                 </div>
               </div>
 

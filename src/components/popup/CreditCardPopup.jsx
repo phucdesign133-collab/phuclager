@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "../../css/Popup.css";
+import { supabase } from "../utils/supabaseClient"; // Kết nối Supabase chung
 
 export default function CreditCardPopup({ isOpen, onClose, onSave, currentDate, selectedCard, lastSavedData }) {
   if (!isOpen) return null;
@@ -30,6 +31,7 @@ export default function CreditCardPopup({ isOpen, onClose, onSave, currentDate, 
   const [daysLeft, setDaysLeft] = useState(0);
   const [withdrawal, setWithdrawal] = useState(0);
   const [withdrawalFee, setWithdrawalFee] = useState(0);
+  const [loading, setLoading] = useState(false);
 
   // Khi mở popup hoặc đổi thẻ, reset ô input về rỗng để hiển thị placeholder
   useEffect(() => {
@@ -54,7 +56,7 @@ export default function CreditCardPopup({ isOpen, onClose, onSave, currentDate, 
     const calcFee = Math.round(numStatement * 0.02);
     setFee(calcFee);
 
-    // Tính số rút dựa trên khả dụng thực tế (làm tròn xuống đến hàng trăm nghìn, ví dụ 12.813.272 -> 12.800.000)
+    // Tính số rút dựa trên khả dụng thực tế
     const rawWithdrawal = activeAvailable > 0 ? activeAvailable : parseNumber(lastSavedData?.available);
     const roundedThousand = Math.floor(rawWithdrawal / 100000) * 100000;
     setWithdrawal(roundedThousand);
@@ -63,7 +65,7 @@ export default function CreditCardPopup({ isOpen, onClose, onSave, currentDate, 
     const calcWithFee = Math.max(Math.round(roundedThousand * 0.018), 50000);
     setWithdrawalFee(roundedThousand > 0 ? calcWithFee : 0);
 
-    // Trạng thái sao kê: sao kê > 0 thì CHƯA XONG, = 0 thì XONG
+    // Trạng thái sao kê
     if (numStatement > 0) {
       setStatementStatus('CHƯA XONG');
       const activeDueDate = dueDate || lastSavedData?.dueDate;
@@ -87,8 +89,11 @@ export default function CreditCardPopup({ isOpen, onClose, onSave, currentDate, 
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    if (loading) return;
+
+    setLoading(true);
     const dataToSave = {
       limit: parseNumber(limit) > 0 ? parseNumber(limit) : parseNumber(lastSavedData?.limit),
       usage: parseNumber(usage) > 0 ? parseNumber(usage) : parseNumber(lastSavedData?.usage),
@@ -104,6 +109,32 @@ export default function CreditCardPopup({ isOpen, onClose, onSave, currentDate, 
       withdrawalFee,
       statementStatus
     };
+
+    try {
+      // 1. Lấy dữ liệu thẻ tín dụng hiện tại trên Supabase
+      const { data: remoteRows } = await supabase
+        .from('app_data')
+        .select('*')
+        .eq('key', 'credit_cards_data')
+        .single();
+
+      let allCardsData = remoteRows && remoteRows.value ? remoteRows.value : {};
+      
+      // Cập nhật dữ liệu cho thẻ hiện tại
+      allCardsData[selectedCard] = dataToSave;
+
+      // 2. Đẩy ngược lại lên Supabase
+      await supabase
+        .from('app_data')
+        .upsert({ key: 'credit_cards_data', value: allCardsData });
+
+    } catch (err) {
+      console.error("Lỗi đồng bộ Supabase thẻ tín dụng:", err);
+    } finally {
+      setLoading(false);
+    }
+
+    // 3. Gọi callback lưu state giao diện cha
     onSave(dataToSave);
     onClose();
   };
@@ -262,7 +293,9 @@ export default function CreditCardPopup({ isOpen, onClose, onSave, currentDate, 
             />
           </div>
 
-          <button type="submit" className="popup-submit-btn">Cập nhật</button>
+          <button type="submit" className="popup-submit-btn" disabled={loading}>
+            {loading ? 'Đang đồng bộ...' : 'Cập nhật'}
+          </button>
         </form>
       </div>
     </div>

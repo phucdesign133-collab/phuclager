@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "../../css/Popup.css";
+import { supabase } from "../utils/supabaseClient"; // Kết nối Supabase chung
 
 const getCurrentDateFormatted = () => {
   const today = new Date();
@@ -9,15 +10,16 @@ const getCurrentDateFormatted = () => {
   return `${dd}/${mm}/${yyyy}`;
 };
 
-export default function GoalPopup({ isOpen, onClose, onSave, currentDate, editingGoal }) {
+export default function GoalPopup({ isOpen, onClose, onSave, currentDate, editingGoal, goalType }) {
+  // goalType nhận vào 'short' hoặc 'long' để phân loại lưu trữ trên Supabase
   const [startDate, setStartDate] = useState(currentDate || "");
   const [endDate, setEndDate] = useState("");
   const [goalName, setGoalName] = useState("");
   const [cost, setCost] = useState("");
-  const [currentSaved, setCurrentSaved] = useState(""); // Trường số tiền đã chuẩn bị
+  const [currentSaved, setCurrentSaved] = useState("");
   const [purpose, setPurpose] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  // Khi popup mở lên: nếu đang ở chế độ chỉnh sửa (editingGoal có dữ liệu) thì điền sẵn, ngược lại reset trắng
   useEffect(() => {
     if (isOpen) {
       if (editingGoal) {
@@ -79,7 +81,6 @@ export default function GoalPopup({ isOpen, onClose, onSave, currentDate, editin
     const numericCost = Number(cost.replace(/\D/g, "")) || 0;
     const numericSaved = Number(currentSaved.replace(/\D/g, "")) || 0;
     
-    // Số tiền còn lại cần góp chia cho tổng số ngày còn lại (hoặc tổng số ngày dự trù)
     const remainingCost = Math.max(0, numericCost - numericSaved);
     const dailySaving = totalDays > 0 ? Math.ceil(remainingCost / totalDays) : 0;
 
@@ -88,8 +89,11 @@ export default function GoalPopup({ isOpen, onClose, onSave, currentDate, editin
 
   const { totalMonths, totalDays, dailySaving } = calculateDurationAndDaily();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    if (loading) return;
+
+    setLoading(true);
     const numericCost = Number(cost.replace(/\D/g, "")) || 0;
     const numericSaved = Number(currentSaved.replace(/\D/g, "")) || 0;
 
@@ -106,6 +110,38 @@ export default function GoalPopup({ isOpen, onClose, onSave, currentDate, editin
       dailySaving,
     };
 
+    // Xác định Key Supabase dựa vào loại mục tiêu (ngắn hay dài hạn)
+    const dbKey = goalType === 'long' ? 'goals_long_data' : 'goals_short_data';
+
+    try {
+      // 1. Lấy danh sách hiện tại từ Supabase
+      const { data: remoteRows } = await supabase
+        .from('app_data')
+        .select('*')
+        .eq('key', dbKey)
+        .single();
+
+      let currentList = remoteRows && remoteRows.value && Array.isArray(remoteRows.value) ? remoteRows.value : [];
+
+      if (editingGoal && typeof editingGoal.index === 'number') {
+        // Cập nhật mục tiêu cũ tại vị trí index
+        currentList[editingGoal.index] = goalData;
+      } else {
+        // Thêm mới mục tiêu vào danh sách
+        currentList.push(goalData);
+      }
+
+      // 2. Đẩy ngược danh sách mới lên Supabase
+      await supabase
+        .from('app_data')
+        .upsert({ key: dbKey, value: currentList });
+
+    } catch (err) {
+      console.error("Lỗi đồng bộ Supabase mục tiêu:", err);
+    } finally {
+      setLoading(false);
+    }
+
     if (onSave) {
       onSave(goalData);
     }
@@ -115,7 +151,7 @@ export default function GoalPopup({ isOpen, onClose, onSave, currentDate, editin
   if (!isOpen) return null;
 
   return (
-    <div className="popup-overlay">
+    <div className="popup-overlay" style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: 'rgba(0, 0, 0, 0.6)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div className="popup-container">
         <div className="popup-header">
           <h3>{editingGoal ? "Chỉnh sửa Mục tiêu" : "Thiết lập Mục tiêu"}</h3>
@@ -174,7 +210,6 @@ export default function GoalPopup({ isOpen, onClose, onSave, currentDate, editin
             />
           </div>
 
-          {/* Trường mới: Số tiền đã chuẩn bị */}
           <div className="form-group">
             <label>Số tiền đã chuẩn bị / tiết kiệm được (VNĐ):</label>
             <input
@@ -211,8 +246,8 @@ export default function GoalPopup({ isOpen, onClose, onSave, currentDate, editin
           </div>
 
           <div className="popup-footer" style={{ margin: "0 -18px -16px -18px" }}>
-            <button type="submit" className="popup-submit-btn">
-              {editingGoal ? "Lưu thay đổi" : "Thêm mới"}
+            <button type="submit" className="popup-submit-btn" disabled={loading}>
+              {loading ? "Đang đồng bộ..." : (editingGoal ? "Lưu thay đổi" : "Thêm mới")}
             </button>
           </div>
         </form>

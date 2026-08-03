@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import '../../css/Popup.css';
+import { supabase } from '../utils/supabaseClient'; // Kết nối Supabase cốt lõi
 
 export default function DebtPopup({ isOpen, onClose, onAddDebt }) {
   const [creditor, setCreditor] = useState('');
@@ -10,6 +11,7 @@ export default function DebtPopup({ isOpen, onClose, onAddDebt }) {
 
   const [calculatedMonths, setCalculatedMonths] = useState(1);
   const [calculatedInterest, setCalculatedInterest] = useState(0);
+  const [loading, setLoading] = useState(false);
 
   // Xử lý nhập số tiền tự động thêm dấu chấm phân cách hàng nghìn
   const handleAmountChange = (e) => {
@@ -21,7 +23,7 @@ export default function DebtPopup({ isOpen, onClose, onAddDebt }) {
     const formatted = Number(rawVal).toLocaleString('vi-VN');
     setAmount(formatted);
   };
-
+ 
   useEffect(() => {
     if (!datum) {
       setCalculatedMonths(1);
@@ -54,15 +56,17 @@ export default function DebtPopup({ isOpen, onClose, onAddDebt }) {
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!amount || !datum) return;
+    if (!amount || !datum || loading) return;
 
+    setLoading(true);
     const rawAmt = parseFloat(amount.replace(/\./g, '')) || 0;
+    const finalCreditor = creditor || 'Dad';
 
     const newDebtItem = {
       id: Date.now(),
-      creditor: creditor || 'Không rõ',
+      creditor: finalCreditor,
       datum: datum,
       rawAmount: rawAmt,
       amount: rawAmt.toLocaleString('vi-VN'),
@@ -73,8 +77,40 @@ export default function DebtPopup({ isOpen, onClose, onAddDebt }) {
       note: note
     };
 
-    onAddDebt(creditor || 'Dad', newDebtItem);
+    try {
+      // 1. Tải dữ liệu hiện tại từ bảng 'debts' trên Supabase (hoặc bảng chung của app)
+      const { data: remoteRows, error: fetchError } = await supabase
+        .from('app_data') // Hoặc tên bảng tùy theo cấu hình chuẩn của anh
+        .select('*')
+        .eq('key', 'total_debts')
+        .single();
 
+      let currentList = [];
+      if (remoteRows && remoteRows.value) {
+        currentList = Array.isArray(remoteRows.value) ? remoteRows.value : [];
+      }
+
+      // Thêm khoản nợ mới lên đầu danh sách
+      const updatedList = [newDebtItem, ...currentList];
+
+      // 2. Đẩy ngược lại lên Supabase
+      const { error: upsertError } = await supabase
+        .from('app_data')
+        .upsert({ key: 'total_debts', value: updatedList });
+
+      if (upsertError) {
+        console.error("Lỗi đồng bộ Supabase:", upsertError.message);
+      }
+    } catch (err) {
+      console.error("Lỗi kết nối:", err);
+    } finally {
+      setLoading(false);
+    }
+
+    // 3. Gọi callback cập nhật state giao diện cha
+    onAddDebt(finalCreditor, newDebtItem);
+
+    // Reset form
     setCreditor('');
     setAmount('');
     setDatum('');
@@ -96,7 +132,7 @@ export default function DebtPopup({ isOpen, onClose, onAddDebt }) {
             <label>1. Chủ nợ</label>
             <input 
               type="text" 
-              placeholder="Nhập tên chủ nợ (VD: Dad, Mom...)" 
+              placeholder="Nhập tên chủ nợ" 
               value={creditor} 
               onChange={(e) => setCreditor(e.target.value)} 
               required 
@@ -115,7 +151,7 @@ export default function DebtPopup({ isOpen, onClose, onAddDebt }) {
           </div>
 
           <div className="debt-popup-field">
-            <label>3. Ngày nhận (DD/MM/YYYY)</label>
+            <label>3. Ngày nhận</label>
             <input 
               type="text" 
               placeholder="VD: 08/05/2026" 
@@ -126,7 +162,7 @@ export default function DebtPopup({ isOpen, onClose, onAddDebt }) {
           </div>
 
           <div className="debt-popup-field">
-            <label>4. Ngày trả (Đến hạn)</label>
+            <label>4. Đến hạn</label>
             <input 
               type="text" 
               placeholder="VD: 08/11/2026" 
@@ -136,11 +172,11 @@ export default function DebtPopup({ isOpen, onClose, onAddDebt }) {
           </div>
 
           <div className="debt-popup-field">
-            <label>5. Lãi (Tự động 2%/tháng): <span className="highlight-val">{calculatedInterest.toLocaleString('vi-VN')} đ</span></label>
+            <label>5. Lãi : <span className="highlight-val">{calculatedInterest.toLocaleString('vi-VN')} đ</span></label>
           </div>
 
           <div className="debt-popup-field">
-            <label>6. Số tháng tính lãi (+1): <span className="highlight-val">{calculatedMonths} tháng</span></label>
+            <label>6. Số tháng tính lãi: <span className="highlight-val">{calculatedMonths} tháng</span></label>
           </div>
 
           <div className="debt-popup-field">
@@ -153,8 +189,8 @@ export default function DebtPopup({ isOpen, onClose, onAddDebt }) {
             />
           </div>
 
-          <button type="submit" className="debt-popup-submit-btn">
-            Cập nhật
+          <button type="submit" className="debt-popup-submit-btn" disabled={loading}>
+            {loading ? 'Đang đồng bộ...' : 'Cập nhật'}
           </button>
         </form>
       </div>

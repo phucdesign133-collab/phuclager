@@ -64,7 +64,7 @@ export default function DebtGrid({ rawData = [] }) {
           const creditorName = capitalizeFirstLetter(item.creditor);
 
           return (
-            <div key={index} className="grid-card">
+            <div key={item.id || index} className="grid-card">
               <div className="grid-header" style={{ borderBottom: '1px solid #eee' }}>
                 <span className="grid-date" style={{ fontWeight: 'bold', color: '#333' }}>
                   {creditorName}

@@ -26,25 +26,68 @@ export default function DailyIncomeExpensePopup({ isOpen, onClose, currentDate, 
     'Ghi chú': ''
   });
 
+  // Hàm tính toán biểu thức an toàn giữ nguyên vẹn từng đồng (không làm tròn mất số lẻ)
+  const evaluateExpression = (inputStr) => {
+    if (!inputStr) return '';
+    const str = String(inputStr).trim();
+    
+    // Nếu chứa toán tử, tiến hành tính toán biểu thức
+    if (/[+\-*/]/.test(str)) {
+      if (/^[0-9+\-*/\.\s]+$/.test(str)) {
+        try {
+          // Chuẩn hóa dấu chấm phân cách hàng nghìn trước khi tính toán
+          const sanitizedStr = str.replace(/\./g, '');
+          // eslint-disable-next-line no-new-func
+          const result = Function(`'use strict'; return (${sanitizedStr})`)();
+          if (!isNaN(result) && isFinite(result)) {
+            return result;
+          }
+        } catch (e) {
+          return str;
+        }
+      }
+    }
+    
+    // Nếu là số thuần túy, loại bỏ dấu chấm phân cách hàng nghìn để lấy đúng số thực tế
+    const cleanNum = String(str).replace(/\./g, '').replace(',', '.');
+    const num = parseFloat(cleanNum);
+    return !isNaN(num) ? num : str;
+  };
+
+  // Hàm format tiền tệ có dấu chấm hàng nghìn cho từng đoạn trong biểu thức
   const formatCurrencyInput = (value) => {
-    if (!value) return '';
-    const numberString = String(value).replace(/\D/g, '');
+    if (value === undefined || value === null || value === '') return '';
+    const strVal = String(value);
+
+    if (/[+\-*/]/.test(strVal)) {
+      return strVal.replace(/([0-9.]+)/g, (match) => {
+        const cleanNum = match.replace(/\./g, '');
+        if (!isNaN(cleanNum) && cleanNum !== '') {
+          return Number(cleanNum).toLocaleString('vi-VN');
+        }
+        return match;
+      });
+    }
+
+    const numberString = strVal.replace(/\D/g, '');
     if (!numberString) return '';
+
     return Number(numberString).toLocaleString('vi-VN');
   };
 
   useEffect(() => {
+    const isCurrentDateData = lastSavedData && lastSavedData.date === currentDate;
+
     const formatSavedObj = (obj) => {
       const formatted = {};
       if (obj) {
         Object.keys(obj).forEach(k => {
-          // Bỏ qua nếu là key cũ '7. Ghi chú'
           if (k === '7. Ghi chú') return;
-          
           if (k === 'Ghi chú') {
             formatted[k] = obj[k] || '';
           } else {
-            formatted[k] = obj[k] !== '' && obj[k] !== undefined ? formatCurrencyInput(obj[k]) : '';
+            // Khi load lại dữ liệu cũ trong ngày, nếu lưu số gốc thì format lại chuẩn hiển thị có dấu chấm
+            formatted[k] = obj[k] !== '' && obj[k] !== undefined ? Number(obj[k]).toLocaleString('vi-VN') : '';
           }
         });
       }
@@ -59,7 +102,7 @@ export default function DailyIncomeExpensePopup({ isOpen, onClose, currentDate, 
       '5. Streak': '',
       '6. Tips': '',
       'Ghi chú': '',
-      ...(lastSavedData?.incomeDetails ? formatSavedObj(lastSavedData.incomeDetails) : {})
+      ...(isCurrentDateData && lastSavedData?.incomeDetails ? formatSavedObj(lastSavedData.incomeDetails) : {})
     });
 
     setExpenseValues({
@@ -70,41 +113,68 @@ export default function DailyIncomeExpensePopup({ isOpen, onClose, currentDate, 
       '5. Phát sinh': '',
       '6. Nhập hàng': '',
       'Ghi chú': '',
-      ...(lastSavedData?.expenseDetails ? formatSavedObj(lastSavedData.expenseDetails) : {})
+      ...(isCurrentDateData && lastSavedData?.expenseDetails ? formatSavedObj(lastSavedData.expenseDetails) : {})
     });
   }, [currentDate, lastSavedData]);
 
   const handleIncomeChange = (key, value) => {
-    const newValue = key === 'Ghi chú' ? value : formatCurrencyInput(value);
-    setIncomeValues(prev => ({ ...prev, [key]: newValue }));
+    if (key === 'Ghi chú') {
+      setIncomeValues(prev => ({ ...prev, [key]: value }));
+      return;
+    }
+    const formatted = formatCurrencyInput(value);
+    setIncomeValues(prev => ({ ...prev, [key]: formatted }));
   };
 
   const handleExpenseChange = (key, value) => {
-    const newValue = key === 'Ghi chú' ? value : formatCurrencyInput(value);
-    setExpenseValues(prev => ({ ...prev, [key]: newValue }));
+    if (key === 'Ghi chú') {
+      setExpenseValues(prev => ({ ...prev, [key]: value }));
+      return;
+    }
+    const formatted = formatCurrencyInput(value);
+    setExpenseValues(prev => ({ ...prev, [key]: formatted }));
+  };
+
+  const handleBlurField = (key, type) => {
+    if (key === 'Ghi chú') return;
+    const setter = type === 'income' ? setIncomeValues : setExpenseValues;
+    const currentVal = type === 'income' ? incomeValues[key] : expenseValues[key];
+
+    const evaluated = evaluateExpression(currentVal);
+    const formatted = typeof evaluated === 'number' ? evaluated.toLocaleString('vi-VN') : evaluated;
+    
+    setter(prev => ({ ...prev, [key]: formatted }));
   };
 
   const handleFormSubmit = () => {
     const finalIncomeDetails = {};
     Object.keys(incomeValues).forEach(k => {
-      finalIncomeDetails[k] = incomeValues[k] !== '' ? incomeValues[k] : (lastSavedData?.incomeDetails?.[k] || '');
+      if (k === 'Ghi chú') {
+        finalIncomeDetails[k] = incomeValues[k];
+      } else {
+        const evaluated = evaluateExpression(incomeValues[k]);
+        // Lưu thẳng giá trị số nguyên vẹn xuống, không bị cắt xén hay chia nhỏ
+        finalIncomeDetails[k] = evaluated !== '' ? Number(evaluated) || 0 : '';
+      }
     });
-    // Đảm bảo loại bỏ key cũ nếu lọt vào
-    delete finalIncomeDetails['7. Ghi chú'];
 
     const finalExpenseDetails = {};
     Object.keys(expenseValues).forEach(k => {
-      finalExpenseDetails[k] = expenseValues[k] !== '' ? expenseValues[k] : (lastSavedData?.expenseDetails?.[k] || '');
+      if (k === 'Ghi chú') {
+        finalExpenseDetails[k] = expenseValues[k];
+      } else {
+        const evaluated = evaluateExpression(expenseValues[k]);
+        finalExpenseDetails[k] = evaluated !== '' ? Number(evaluated) || 0 : '';
+      }
     });
-    delete finalExpenseDetails['7. Ghi chú'];
 
     const totalIncome = Object.keys(finalIncomeDetails)
       .filter(k => k !== 'Ghi chú')
-      .reduce((sum, k) => sum + (parseFloat(String(finalIncomeDetails[k]).replace(/\./g, '')) || 0), 0);
+      .reduce((sum, k) => sum + (parseFloat(finalIncomeDetails[k]) || 0), 0);
 
     const totalExpense = Object.keys(finalExpenseDetails)
       .filter(k => k !== 'Ghi chú')
-      .reduce((sum, k) => sum + (parseFloat(String(finalExpenseDetails[k]).replace(/\./g, '')) || 0), 0);
+      .reduce((sum, k) => sum + (parseFloat(finalExpenseDetails[k]) || 0), 0);
 
     if (onSave) {
       onSave({
@@ -123,7 +193,7 @@ export default function DailyIncomeExpensePopup({ isOpen, onClose, currentDate, 
       <div className="popup-container">
         <div className="popup-header">
           <h3>Cập nhật tài chính ({currentDate})</h3>
-          <button className="close-btn" onClick={onClose}>×</button>
+          <button className="close-btn" onClick={onClose} type="button">×</button>
         </div>
 
         <div className="popup-tabs">
@@ -149,7 +219,7 @@ export default function DailyIncomeExpensePopup({ isOpen, onClose, currentDate, 
               {Object.keys(incomeValues).map((key) => {
                 const isNote = key === 'Ghi chú';
                 const oldVal = lastSavedData?.incomeDetails?.[key];
-                const placeholderText = (oldVal !== undefined && oldVal !== '') ? (isNote ? oldVal : formatCurrencyInput(oldVal)) : (isNote ? "Nhập ghi chú..." : "0");
+                const placeholderText = (oldVal !== undefined && oldVal !== '') ? (isNote ? oldVal : Number(oldVal).toLocaleString('vi-VN')) : (isNote ? "Nhập ghi chú..." : "0");
 
                 return (
                   <div className="form-group" key={key}>
@@ -159,6 +229,7 @@ export default function DailyIncomeExpensePopup({ isOpen, onClose, currentDate, 
                       value={incomeValues[key]} 
                       placeholder={placeholderText}
                       onChange={(e) => handleIncomeChange(key, e.target.value)}
+                      onBlur={() => handleBlurField(key, 'income')}
                     />
                   </div>
                 );
@@ -169,7 +240,7 @@ export default function DailyIncomeExpensePopup({ isOpen, onClose, currentDate, 
               {Object.keys(expenseValues).map((key) => {
                 const isNote = key === 'Ghi chú';
                 const oldVal = lastSavedData?.expenseDetails?.[key];
-                const placeholderText = (oldVal !== undefined && oldVal !== '') ? (isNote ? oldVal : formatCurrencyInput(oldVal)) : (isNote ? "Nhập ghi chú..." : "0");
+                const placeholderText = (oldVal !== undefined && oldVal !== '') ? (isNote ? oldVal : Number(oldVal).toLocaleString('vi-VN')) : (isNote ? "Nhập ghi chú..." : "0");
 
                 return (
                   <div className="form-group" key={key}>
@@ -179,6 +250,7 @@ export default function DailyIncomeExpensePopup({ isOpen, onClose, currentDate, 
                       value={expenseValues[key]} 
                       placeholder={placeholderText}
                       onChange={(e) => handleExpenseChange(key, e.target.value)}
+                      onBlur={() => handleBlurField(key, 'expense')}
                     />
                   </div>
                 );

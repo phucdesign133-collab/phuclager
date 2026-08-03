@@ -4,21 +4,16 @@ import "../../css/Popup.css";
 export default function SocialPopup({ isOpen, onClose, onSave, isEditing, lastSavedData, initialTab = "series" }) {
   if (!isOpen) return null;
 
-  // Quản lý tab bên trong popup: "series" hoặc "idea"
   const [activeTab, setActiveTab] = useState(initialTab);
-
-  // Form fields chung & riêng
   const [title, setTitle] = useState('');
-  const [code, setCode] = useState(''); // Chỉ dùng cho Series
+  const [code, setCode] = useState(''); 
   const [purpose, setPurpose] = useState('');
-
-  // Các trường mở rộng riêng cho Ideas
-  const [targetAudience, setTargetAudience] = useState(''); // Phục vụ cho việc gì / cho ai
-  const [scope, setScope] = useState('Cá nhân'); // Phạm vi
-  const [budget, setBudget] = useState(''); // Dự trù ngân sách
-  const [startDate, setStartDate] = useState(''); // Ngày bắt đầu dự kiến
-  const [timeSlot, setTimeSlot] = useState(''); // Khung giờ thực hiện
-  const [notes, setNotes] = useState(''); // Kế hoạch cơ bản / Ghi chú
+  const [targetAudience, setTargetAudience] = useState(''); 
+  const [scope, setScope] = useState('Cá nhân'); 
+  const [budget, setBudget] = useState(''); 
+  const [startDate, setStartDate] = useState(''); 
+  const [timeSlot, setTimeSlot] = useState(''); 
+  const [notes, setNotes] = useState(''); 
 
   useEffect(() => {
     if (isOpen) {
@@ -38,9 +33,9 @@ export default function SocialPopup({ isOpen, onClose, onSave, isEditing, lastSa
   const handleSubmit = (e) => {
     e.preventDefault();
     const dataToSave = {
-      activeTab, // Đính kèm tab để component cha biết lưu vào kho Series hay Idea
+      activeTab,
       title,
-      code: activeTab === 'series' ? code : (title.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '')), // Tự sinh key ẩn cho Idea nếu không có code
+      code: activeTab === 'series' ? code : (title.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '')),
       purpose,
       targetAudience,
       scope,
@@ -62,20 +57,15 @@ export default function SocialPopup({ isOpen, onClose, onSave, isEditing, lastSa
           <button type="button" className="popup-close-btn" onClick={onClose}>&times;</button>
         </div>
 
-        {/* Tab Switcher ngay trong Popup */}
         {!isEditing && (
           <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', background: '#f1f3f5', padding: '4px', borderRadius: '8px' }}>
             <button
               type="button"
               onClick={() => setActiveTab('series')}
               style={{
-                flex: 1,
-                padding: '8px',
-                border: 'none',
-                borderRadius: '6px',
+                flex: 1, padding: '8px', border: 'none', borderRadius: '6px',
                 background: activeTab === 'series' ? '#fff' : 'transparent',
-                fontWeight: activeTab === 'series' ? '600' : '400',
-                cursor: 'pointer',
+                fontWeight: activeTab === 'series' ? '600' : '400', cursor: 'pointer',
                 boxShadow: activeTab === 'series' ? '0 2px 4px rgba(0,0,0,0.05)' : 'none',
                 color: activeTab === 'series' ? 'var(--primary-dark-red, #c92a2a)' : '#666'
               }}
@@ -86,13 +76,9 @@ export default function SocialPopup({ isOpen, onClose, onSave, isEditing, lastSa
               type="button"
               onClick={() => setActiveTab('idea')}
               style={{
-                flex: 1,
-                padding: '8px',
-                border: 'none',
-                borderRadius: '6px',
+                flex: 1, padding: '8px', border: 'none', borderRadius: '6px',
                 background: activeTab === 'idea' ? '#fff' : 'transparent',
-                fontWeight: activeTab === 'idea' ? '600' : '400',
-                cursor: 'pointer',
+                fontWeight: activeTab === 'idea' ? '600' : '400', cursor: 'pointer',
                 boxShadow: activeTab === 'idea' ? '0 2px 4px rgba(0,0,0,0.05)' : 'none',
                 color: activeTab === 'idea' ? 'var(--primary-dark-red, #c92a2a)' : '#666'
               }}
@@ -114,7 +100,6 @@ export default function SocialPopup({ isOpen, onClose, onSave, isEditing, lastSa
             />
           </div>
 
-          {/* Chỉ hiển thị Mã viết tắt nếu là Series */}
           {activeTab === 'series' && (
             <div className="form-group">
               <label>Mã (VD: TMQB):</label>
@@ -138,7 +123,6 @@ export default function SocialPopup({ isOpen, onClose, onSave, isEditing, lastSa
             />
           </div>
 
-          {/* Các trường mở rộng riêng khi ở tab Idea */}
           {activeTab === 'idea' && (
             <>
               <div className="form-group">

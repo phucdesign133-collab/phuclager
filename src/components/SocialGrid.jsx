@@ -4,7 +4,7 @@ import { getSeriesDisplayName } from '../datas/seriesNameMapping';
 import { EditIcon, TrashIcon } from './Icons';
 
 export default function SocialGrid({ rawData, onSelectSeries, onEditSeries, onDeleteSeries }) {
-  // Lấy danh sách các key và sắp xếp giảm dần theo thời gian updatedAt (mới nhất/vừa cập nhật lên trên)
+  // Lấy danh sách các key và sắp xếp giảm dần theo thời gian updatedAt
   const seriesKeys = rawData ? Object.keys(rawData).sort((a, b) => {
     const listA = rawData[a] || [];
     const listB = rawData[b] || [];
@@ -28,11 +28,17 @@ export default function SocialGrid({ rawData, onSelectSeries, onEditSeries, onDe
       <h3 style={{ marginBottom: '12px', fontSize: '15px', color: '#2d3748' }}>Danh sách các Series hiện có:</h3>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
         {seriesKeys.map((seriesKey, idx) => {
-          const seriesDataList = rawData[seriesKey] || [];
-          const latestItem = seriesDataList[seriesDataList.length - 1] || {};
+          const rawSeriesList = rawData[seriesKey] || [];
           
-          const purposeText = seriesDataList.purpose || latestItem.purpose || "Chưa có định hướng / slogan cho series này.";
-          const displayName = seriesDataList.seriesName || getSeriesDisplayName(seriesKey);
+          // Lọc chính xác các mục có keyWord hợp lệ (đồng bộ hoàn toàn với danh sách bên trong)
+          const validItemsList = Array.isArray(rawSeriesList) 
+            ? rawSeriesList.filter(item => item && item.keyWord && item.keyWord.trim() !== '')
+            : [];
+
+          const latestItem = validItemsList[validItemsList.length - 1] || {};
+          
+          const purposeText = rawSeriesList.purpose || latestItem.purpose || "Chưa có định hướng / slogan cho series này.";
+          const displayName = rawSeriesList.seriesName || getSeriesDisplayName(seriesKey);
 
           return (
             <div 
@@ -57,8 +63,9 @@ export default function SocialGrid({ rawData, onSelectSeries, onEditSeries, onDe
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  {/* Hiển thị số lượng mục chuẩn xác dựa trên danh sách đã lọc */}
                   <span style={{ fontSize: '12px', background: '#f1f3f5', padding: '2px 8px', borderRadius: '10px', color: '#495057' }}>
-                    {seriesDataList.length} mục
+                    {validItemsList.length} mục
                   </span>
 
                   {/* Nút sửa/xóa Series */}
@@ -95,7 +102,7 @@ export default function SocialGrid({ rawData, onSelectSeries, onEditSeries, onDe
                 style={{ marginTop: '8px', cursor: 'pointer' }}
               >
                 <div className="info-row">
-                  <span className="info-label italic" style={{ color: '#4a5568' }}>Mục đích / Slogan: </span>
+                  <span className="info-label italic" style={{ color: '#4a5568' }}>Mục đích: </span>
                   <span className="info-value italic text-gray" style={{ fontSize: '13px' }}>{purposeText}</span>
                 </div>
               </div>
