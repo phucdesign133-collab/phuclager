@@ -18,6 +18,18 @@ export default function SocialSeriesPopup({ isOpen, onClose, onSave, lastSavedDa
   const [postedYouTube, setPostedYouTube] = useState(false);
   const [postedTikTok, setPostedTikTok] = useState(false);
 
+  // 1. Hàm chuyển tiếng Việt có dấu thành slug không dấu chuẩn xác
+  const slugify = (text) => {
+    return text
+      .toString()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9 ]/g, '')
+      .replace(/\s+/g, '-');
+  };
+
   useEffect(() => {
     if (isOpen) {
       setEpisode(lastSavedData?.episode || '');
@@ -35,22 +47,29 @@ export default function SocialSeriesPopup({ isOpen, onClose, onSave, lastSavedDa
     }
   }, [isOpen, lastSavedData]);
 
-  // Xử lý chọn và nén ảnh tương thích hoàn hảo với iOS Safari & PC
+  const handleClipNameChange = (e) => {
+    const val = e.target.value;
+    setClipName(val);
+    const generated = slugify(val);
+    if (generated) {
+      setKeyWord(generated);
+    }
+  };
+
+  // 2. Xử lý chọn ảnh & nén WebP tỷ lệ dọc 9:16 chuẩn xác
   const handleImageChange = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Tự sinh key nếu chưa có
     let generatedKey = keyWord.trim();
     if (!generatedKey) {
-      const baseName = clipName.trim() || file.name.substring(0, file.name.lastIndexOf('.')) || `item-${episode || 'img'}`;
-      generatedKey = baseName.toLowerCase().replace(/[^a-z0-9]/g, '-');
+      const baseName = slugify(clipName) || slugify(file.name.substring(0, file.name.lastIndexOf('.'))) || `item-${episode || 'img'}`;
+      generatedKey = baseName;
       setKeyWord(generatedKey);
     }
 
     const reader = new FileReader();
     reader.onerror = () => {
-      // Fallback an toàn cho iOS nếu FileReader lỗi
       setImageFile(file);
       setImagePreview(URL.createObjectURL(file));
     };
@@ -65,13 +84,14 @@ export default function SocialSeriesPopup({ isOpen, onClose, onSave, lastSavedDa
       
       img.onload = () => {
         const canvas = document.createElement('canvas');
+        const MAX_WIDTH = 540;
         let width = img.width;
         let height = img.height;
 
-        const MAX_WIDTH = 600;
         if (width > MAX_WIDTH) {
-          height = Math.round((height * MAX_WIDTH) / width);
           width = MAX_WIDTH;
+          // Tỷ lệ dọc chuẩn 9:16 chính xác (Chiều cao = Chiều rộng * 16 / 9)
+          height = Math.round(width * (16 / 9));
         }
 
         canvas.width = width;
@@ -94,7 +114,7 @@ export default function SocialSeriesPopup({ isOpen, onClose, onSave, lastSavedDa
               return;
             }
 
-            const cleanKeyName = generatedKey.toLowerCase().replace(/\s+/g, '-');
+            const cleanKeyName = slugify(generatedKey);
             const compressedFile = new File([blob], `${cleanKeyName}.webp`, {
               type: 'image/webp',
               lastModified: Date.now(),
@@ -116,8 +136,8 @@ export default function SocialSeriesPopup({ isOpen, onClose, onSave, lastSavedDa
     setImagePreview('');
   };
 
-  const trimmedKey = keyWord.trim().toLowerCase() || (clipName ? clipName.toLowerCase().replace(/[^a-z0-9]/g, '-') : `item-${episode || Date.now()}`);
-  const isDuplicateKey = existingKeys && existingKeys.includes(trimmedKey) && trimmedKey !== (lastSavedData?.keyWord || '').toLowerCase();
+  const trimmedKey = slugify(keyWord) || slugify(clipName) || `item-${episode || Date.now()}`;
+  const isDuplicateKey = existingKeys && existingKeys.includes(trimmedKey) && trimmedKey !== slugify(lastSavedData?.keyWord || '');
 
   const handleDateChange = (e) => {
     let raw = e.target.value.replace(/\D/g, '').slice(0, 8);
@@ -138,7 +158,6 @@ export default function SocialSeriesPopup({ isOpen, onClose, onSave, lastSavedDa
     let finalImageUrl = imagePreview;
 
     try {
-      // Nếu có chọn file ảnh mới thì tiến hành đẩy lên Supabase Storage
       if (imageFile) {
         const fileName = `${trimmedKey}-${Date.now()}.webp`;
         const filePath = `uploads/${fileName}`;
@@ -220,7 +239,7 @@ export default function SocialSeriesPopup({ isOpen, onClose, onSave, lastSavedDa
             <input 
               type="text" 
               value={clipName} 
-              onChange={(e) => setClipName(e.target.value)} 
+              onChange={handleClipNameChange} 
               placeholder="Nhập tên mô tả clip..." 
             />
           </div>
@@ -231,7 +250,7 @@ export default function SocialSeriesPopup({ isOpen, onClose, onSave, lastSavedDa
               <input 
                 type="text" 
                 value={keyWord} 
-                onChange={(e) => setKeyWord(e.target.value)} 
+                onChange={(e) => setKeyWord(slugify(e.target.value))} 
                 placeholder="Tự sinh nếu để trống..." 
                 style={{ 
                   flex: 1, 
