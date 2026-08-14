@@ -3,7 +3,7 @@ import "../css/Grid.css";
 import SearchBar from "./searchBar";
 import { FaFacebook, FaYoutube, FaTiktok } from "react-icons/fa";
 
-export default function SocialList({ activeSeries, seriesItems, onBack, onOpenAddPopup, onEditItem }) {
+export default function SocialList({ activeSeries, seriesItems, onBack, onOpenAddPopup, onEditItem, onDeleteItem }) {
   const [searchTerm, setSearchTerm] = useState("");
 
   if (!activeSeries) return null;
@@ -17,6 +17,16 @@ export default function SocialList({ activeSeries, seriesItems, onBack, onOpenAd
           return epB - epA;
         })
     : [];
+
+  // Hàm viết hoa chữ cái đầu của tên mẫu/clip
+  const capitalizeWords = (str) => {
+    if (!str) return "";
+    return str
+      .toLowerCase()
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  };
 
   return (
     <div className="grid-container">
@@ -40,18 +50,18 @@ export default function SocialList({ activeSeries, seriesItems, onBack, onOpenAd
       ) : (
         <div className="phuc-social-grid">
           {sortedItems.map((item) => {
-            const displayKey = item.clipName || item.keyWord;
-            if (!displayKey || displayKey.trim() === "") return null;
+            const rawKey = item.clipName || item.keyWord;
+            if (!rawKey || rawKey.trim() === "") return null;
 
+            const formattedKey = capitalizeWords(rawKey);
             const actualIndex = item.originalIndex;
             const seriesNameUpper = (item.seriesName || activeSeries).toUpperCase();
             const paddedEpisode = item.episode ? String(item.episode).padStart(3, "0") : "000";
-            const titleDisplay = `${seriesNameUpper}#${paddedEpisode} - ${displayKey}`;
+            const titleDisplay = `${seriesNameUpper}#${paddedEpisode} - ${formattedKey}`;
             
             const matchesSearch = titleDisplay.toLowerCase().includes(searchTerm.toLowerCase());
             if (searchTerm.trim() !== "" && !matchesSearch) return null;
 
-            // Cấu hình danh sách nền tảng kèm link tương ứng
             const platforms = [
               { active: item.postedMeta, link: item.metaLink, icon: <FaFacebook />, name: "Meta" },
               { active: item.postedYouTube, link: item.youtubeLink, icon: <FaYoutube />, name: "YouTube" },
@@ -63,7 +73,6 @@ export default function SocialList({ activeSeries, seriesItems, onBack, onOpenAd
                 key={actualIndex}
                 className="phuc-social-card"
               >
-                {/* Click vào ảnh hoặc thân card để sửa item */}
                 <div className="phuc-social-img-box" onClick={() => onEditItem && onEditItem(item, actualIndex)}>
                   {item.imagePreview ? (
                     <img src={item.imagePreview} alt="Preview" />
@@ -73,22 +82,25 @@ export default function SocialList({ activeSeries, seriesItems, onBack, onOpenAd
                   <div className="phuc-social-overlay" />
                 </div>
 
-                <div className="phuc-social-text-top" onClick={() => onEditItem && onEditItem(item, actualIndex)}>
-                  <div className="phuc-social-title-text">{titleDisplay}</div>
-                  {item.chapter && <div style={{ fontSize: '11px', opacity: 0.9 }}>({item.chapter})</div>}
+                <div 
+                  className="phuc-social-text-top" 
+                  onClick={() => onEditItem && onEditItem(item, actualIndex)}
+                  style={{
+                    wordBreak: 'break-word',
+                    overflowWrap: 'break-word',
+                    whiteSpace: 'normal'
+                  }}
+                >
+                  <div className="phuc-social-title-text" style={{ wordBreak: 'break-word', overflowWrap: 'break-word', whiteSpace: 'normal' }}>
+                    {titleDisplay}
+                  </div>
+                  {item.chapter && <div style={{ fontSize: '11px', opacity: 0.9, marginTop: '2px' }}>({item.chapter})</div>}
                 </div>
 
                 {/* Phần icon mạng xã hội phía dưới */}
                 <div className="phuc-social-icons-bottom">
                   {platforms.map((p, i) => {
                     const hasLink = p.link && p.link.trim() !== "";
-                    
-                    const iconContent = (
-                      <>
-                        <span>{p.active ? "☑" : "☐"}</span>
-                        <span>{p.icon}</span>
-                      </>
-                    );
 
                     return (
                       <div
@@ -108,14 +120,14 @@ export default function SocialList({ activeSeries, seriesItems, onBack, onOpenAd
                         }}
                         title={p.active ? (hasLink ? `Mở link ${p.name}` : `Chưa có link ${p.name}`) : `Chưa bật ${p.name}`}
                         style={{
-                          display: 'flex', alignItems: 'center', gap: '3px',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px',
                           background: p.active ? '#58D68D' : 'rgba(0, 0, 0, 0.6)',
                           color: p.active ? '#111' : '#cbd5e0', 
                           fontWeight: p.active ? '600' : 'normal',
-                          padding: '3px 6px', borderRadius: '4px', fontSize: '11px', cursor: 'pointer'
+                          padding: '5px 8px', borderRadius: '4px', fontSize: '13px', cursor: 'pointer'
                         }}
                       >
-                        {iconContent}
+                        {p.icon}
                       </div>
                     );
                   })}

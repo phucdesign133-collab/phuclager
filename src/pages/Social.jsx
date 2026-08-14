@@ -308,6 +308,34 @@ export default function Social({ selectedFilter, isPopupOpen, setIsPopupOpen, on
         }}
         onSave={handleSaveEpisode}
         lastSavedData={editingEpisodeData}
+        onDelete={() => {
+          if (editingEpisodeIndex !== null && editingEpisodeIndex >= 0) {
+            const currentTime = Date.now();
+            if (isIdeaMode) {
+              const updatedEp = { ...ideaEpisodes };
+              const list = [...(updatedEp[activeSeries] || [])];
+              list.splice(editingEpisodeIndex, 1);
+              updatedEp[activeSeries] = list;
+              setIdeaEpisodes(updatedEp);
+              syncSocial('idea_episodes', updatedEp);
+
+              const updatedMeta = { ...ideaMeta, [activeSeries]: { ...(ideaMeta[activeSeries] || {}), updatedAt: currentTime } };
+              setIdeaMeta(updatedMeta);
+              syncSocial('idea_meta', updatedMeta);
+            } else {
+              const updatedEp = { ...seriesEpisodes };
+              const list = [...(updatedEp[activeSeries] || [])];
+              list.splice(editingEpisodeIndex, 1);
+              updatedEp[activeSeries] = list;
+              setSeriesEpisodes(updatedEp);
+              syncSocial('series_episodes', updatedEp);
+
+              const updatedMeta = { ...seriesMeta, [activeSeries]: { ...(seriesMeta[activeSeries] || {}), updatedAt: currentTime } };
+              setSeriesMeta(updatedMeta);
+              syncSocial('series_meta', updatedMeta);
+            }
+          }
+        }}
       />
     </div>
   );

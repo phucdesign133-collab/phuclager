@@ -13,81 +13,44 @@ export default function SocialSeriesPopup({ isOpen, onClose, onSave, onDelete, l
   const [imagePreview, setImagePreview] = useState('');
   const [uploading, setUploading] = useState(false);
 
-  // Trạng thái Checkbox, Link & Trạng thái mở rộng ô nhập link (showLinkInput)
   const [postedMeta, setPostedMeta] = useState(false);
   const [metaLink, setMetaLink] = useState('');
-  const [showMetaLink, setShowMetaLink] = useState(false);
 
   const [postedYouTube, setPostedYouTube] = useState(false);
   const [youtubeLink, setYoutubeLink] = useState('');
-  const [showYoutubeLink, setShowYoutubeLink] = useState(false);
 
   const [postedTikTok, setPostedTikTok] = useState(false);
   const [tiktokLink, setTiktokLink] = useState('');
-  const [showTiktokLink, setShowTiktokLink] = useState(false);
-
-  // Hàm chuyển tiếng Việt có dấu thành slug không dấu chuẩn xác
-  const slugify = (text) => {
-    return text
-      .toString()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .toLowerCase()
-      .trim()
-      .replace(/[^a-z0-9 ]/g, '')
-      .replace(/\s+/g, '-');
-  };
 
   useEffect(() => {
     if (isOpen) {
       setEpisode(lastSavedData?.episode || '');
       setPublishDateInput(lastSavedData?.publishDateRaw || lastSavedData?.chapter || '');
-      setKeyWord(lastSavedData?.keyWord || '');
+      setKeyWord(lastSavedData?.keyWord || lastSavedData?.clipName || ''); 
       setImagePreview(lastSavedData?.imagePreview || lastSavedData?.thumbnail_url || '');
       
       setPostedMeta(lastSavedData?.postedMeta || false);
       setMetaLink(lastSavedData?.metaLink || '');
-      setShowMetaLink(!!lastSavedData?.metaLink);
 
       setPostedYouTube(lastSavedData?.postedYouTube || false);
       setYoutubeLink(lastSavedData?.youtubeLink || '');
-      setShowYoutubeLink(!!lastSavedData?.youtubeLink);
 
       setPostedTikTok(lastSavedData?.postedTikTok || false);
       setTiktokLink(lastSavedData?.tiktokLink || '');
-      setShowTiktokLink(!!lastSavedData?.tiktokLink);
 
       setImageFile(null);
       setUploading(false);
     }
   }, [isOpen, lastSavedData]);
 
-  // Xử lý chọn ảnh & nén WebP tỷ lệ dọc chuẩn xác
   const handleImageChange = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    let generatedKey = keyWord.trim();
-    if (!generatedKey) {
-      const baseName = slugify(file.name.substring(0, file.name.lastIndexOf('.'))) || `item-${episode || 'img'}`;
-      generatedKey = baseName;
-      setKeyWord(generatedKey);
-    }
-
     const reader = new FileReader();
-    reader.onerror = () => {
-      setImageFile(file);
-      setImagePreview(URL.createObjectURL(file));
-    };
-
     reader.onload = (event) => {
       const img = new Image();
-      img.onerror = () => {
-        setImageFile(file);
-        setImagePreview(URL.createObjectURL(file));
-      };
       img.src = event.target.result;
-      
       img.onload = () => {
         const canvas = document.createElement('canvas');
         const MAX_WIDTH = 540;
@@ -103,28 +66,15 @@ export default function SocialSeriesPopup({ isOpen, onClose, onSave, onDelete, l
         canvas.height = height;
 
         const ctx = canvas.getContext('2d');
-        if (!ctx) {
-          setImageFile(file);
-          setImagePreview(URL.createObjectURL(file));
-          return;
-        }
-
         ctx.drawImage(img, 0, 0, width, height);
 
         canvas.toBlob(
           (blob) => {
-            if (!blob) {
-              setImageFile(file);
-              setImagePreview(URL.createObjectURL(file));
-              return;
-            }
-
-            const cleanKeyName = slugify(generatedKey);
-            const compressedFile = new File([blob], `${cleanKeyName}.webp`, {
+            if (!blob) return;
+            const compressedFile = new File([blob], `item-${Date.now()}.webp`, {
               type: 'image/webp',
               lastModified: Date.now(),
             });
-
             setImageFile(compressedFile);
             setImagePreview(URL.createObjectURL(blob));
           },
@@ -135,13 +85,6 @@ export default function SocialSeriesPopup({ isOpen, onClose, onSave, onDelete, l
     };
     reader.readAsDataURL(file);
   };
-
-  const handleRemoveImage = () => {
-    setImageFile(null);
-    setImagePreview('');
-  };
-
-  const trimmedKey = slugify(keyWord) || `item-${episode || Date.now()}`;
 
   const handleDateChange = (e) => {
     let raw = e.target.value.replace(/\D/g, '').slice(0, 8);
@@ -156,13 +99,12 @@ export default function SocialSeriesPopup({ isOpen, onClose, onSave, onDelete, l
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     setUploading(true);
     let finalImageUrl = imagePreview;
 
     try {
       if (imageFile) {
-        const fileName = `${trimmedKey}-${Date.now()}.webp`;
+        const fileName = `clip-${Date.now()}.webp`;
         const filePath = `uploads/${fileName}`;
 
         const { error: uploadError } = await supabase.storage
@@ -181,8 +123,8 @@ export default function SocialSeriesPopup({ isOpen, onClose, onSave, onDelete, l
         finalImageUrl = publicUrlData.publicUrl;
       }
     } catch (error) {
-      console.error("Lỗi upload ảnh lên Supabase:", error.message);
-      alert("Lỗi upload ảnh lên mây: " + error.message);
+      console.error("Lỗi upload ảnh:", error.message);
+      alert("Lỗi upload ảnh: " + error.message);
       setUploading(false);
       return;
     }
@@ -192,15 +134,15 @@ export default function SocialSeriesPopup({ isOpen, onClose, onSave, onDelete, l
       publishDateRaw: publishDateInput,
       chapter: publishDateInput,
       clipName: keyWord, 
-      keyWord: trimmedKey,
+      keyWord: keyWord,  
       imagePreview: finalImageUrl,
       thumbnail_url: finalImageUrl,
       postedMeta,
-      metaLink: postedMeta ? metaLink : '',
+      metaLink,
       postedYouTube,
-      youtubeLink: postedYouTube ? youtubeLink : '',
+      youtubeLink,
       postedTikTok,
-      tiktokLink: postedTikTok ? tiktokLink : '',
+      tiktokLink,
       updatedAt: new Date().toISOString()
     };
 
@@ -280,132 +222,100 @@ export default function SocialSeriesPopup({ isOpen, onClose, onSave, onDelete, l
                 style={{ flex: 1 }}
                 required
               />
+              
+              {imagePreview && (
+                <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                  <img src={imagePreview} alt="Preview" style={{ width: '38px', height: '38px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #ccc' }} />
+                  <button 
+                    type="button" 
+                    onClick={() => { setImageFile(null); setImagePreview(''); }} 
+                    style={{ position: 'absolute', top: '-6px', right: '-6px', background: '#e53e3e', color: '#fff', border: 'none', borderRadius: '50%', width: '18px', height: '18px', fontSize: '10px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                  >
+                    &times;
+                  </button>
+                </div>
+              )}
+
               <label className="upload-btn-label" style={{ 
                 padding: '8px 12px', background: '#f0f2f5', border: '1px solid #ccc', 
-                borderRadius: '4px', cursor: 'pointer', fontSize: '14px', whiteSpace: 'nowrap',
-                WebkitTapHighlightColor: 'transparent', userSelect: 'none'
+                borderRadius: '4px', cursor: 'pointer', fontSize: '14px', whiteSpace: 'nowrap'
               }}>
                 📁 Chọn ảnh
                 <input type="file" accept="image/*" onChange={handleImageChange} style={{ display: 'none' }} />
               </label>
             </div>
-
-            {imagePreview && (
-              <div style={{ marginTop: '8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#f8f9fa', padding: '6px 10px', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <img src={imagePreview} alt="Preview" style={{ width: '36px', height: '36px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #cbd5e0' }} />
-                  <span style={{ fontSize: '12px', color: '#4a5568' }}>Đã sẵn sàng tải lên mây!</span>
-                </div>
-                <button 
-                  type="button" onClick={handleRemoveImage} title="Xóa hình này"
-                  style={{ background: '#feb2b2', color: '#9b2c2c', border: 'none', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '14px' }}
-                >
-                  &times;
-                </button>
-              </div>
-            )}
           </div>
 
-          {/* Phần Nền tảng đã đăng: 3 mục nằm ngang, có nút mũi tên toggle link riêng */}
           <div className="form-group">
             <label>Nền tảng đã đăng:</label>
-            
-            {/* 3 icon nằm ngang 1 hàng */}
-            <div style={{ display: 'flex', gap: '15px', background: '#f8f9fa', padding: '12px 14px', borderRadius: '8px', border: '1px solid #e2e8f0', marginTop: '4px', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '6px' }}>
               
               {/* Meta */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: '500', color: '#2d3748' }}>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
+                  <span style={{ fontSize: '13px', fontWeight: '500', color: '#333' }}>Meta</span>
                   <input 
-                    type="checkbox" checked={postedMeta} 
-                    onChange={(e) => setPostedMeta(e.target.checked)}
-                    style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                    type="checkbox" 
+                    checked={postedMeta} 
+                    onChange={(e) => setPostedMeta(e.target.checked)} 
+                    style={{ width: '16px', height: '16px', cursor: 'pointer',margin:'0' }}
                   />
-                  Meta
-                </label>
-                <button 
-                  type="button" 
-                  onClick={() => setShowMetaLink(!showMetaLink)}
-                  title="Nhập link Meta"
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '12px', color: '#4a5568', padding: '2px 4px' }}
-                >
-                  {showMetaLink ? '▲' : '▼'}
-                </button>
+                </div>
+                <input 
+                  type="text" 
+                  value={metaLink} 
+                  onChange={(e) => setMetaLink(e.target.value)} 
+                  placeholder="Dán link bài viết Meta..." 
+                  style={{ width: '100%', padding: '6px 10px', fontSize: '13px' }}
+                />
               </div>
 
               {/* YouTube */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: '500', color: '#2d3748' }}>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
+                  <span style={{ fontSize: '13px', fontWeight: '500', color: '#333' }}>YouTube</span>
                   <input 
-                    type="checkbox" checked={postedYouTube} 
-                    onChange={(e) => setPostedYouTube(e.target.checked)}
-                    style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                    type="checkbox" 
+                    checked={postedYouTube} 
+                    onChange={(e) => setPostedYouTube(e.target.checked)} 
+                    style={{ width: '16px', height: '16px', cursor: 'pointer',margin:'0' }}
                   />
-                  YouTube
-                </label>
-                <button 
-                  type="button" 
-                  onClick={() => setShowYoutubeLink(!showYoutubeLink)}
-                  title="Nhập link YouTube"
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '12px', color: '#4a5568', padding: '2px 4px' }}
-                >
-                  {showYoutubeLink ? '▲' : '▼'}
-                </button>
+                </div>
+                <input 
+                  type="text" 
+                  value={youtubeLink} 
+                  onChange={(e) => setYoutubeLink(e.target.value)} 
+                  placeholder="Dán link YouTube..." 
+                  style={{ width: '100%', padding: '6px 10px', fontSize: '13px' }}
+                />
               </div>
 
               {/* TikTok */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: '500', color: '#2d3748' }}>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
+                  <span style={{ fontSize: '13px', fontWeight: '500', color: '#333' }}>TikTok</span>
                   <input 
-                    type="checkbox" checked={postedTikTok} 
-                    onChange={(e) => setPostedTikTok(e.target.checked)}
-                    style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                    type="checkbox" 
+                    checked={postedTikTok} 
+                    onChange={(e) => setPostedTikTok(e.target.checked)} 
+                    style={{ width: '16px', height: '16px', cursor: 'pointer',margin:'0' }}
                   />
-                  TikTok
-                </label>
-                <button 
-                  type="button" 
-                  onClick={() => setShowTiktokLink(!showTiktokLink)}
-                  title="Nhập link TikTok"
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '12px', color: '#4a5568', padding: '2px 4px' }}
-                >
-                  {showTiktokLink ? '▲' : '▼'}
-                </button>
+                </div>
+                <input 
+                  type="text" 
+                  value={tiktokLink} 
+                  onChange={(e) => setTiktokLink(e.target.value)} 
+                  placeholder="Dán link TikTok..." 
+                  style={{ width: '100%', padding: '6px 10px', fontSize: '13px' }}
+                />
               </div>
 
             </div>
-
-            {/* Các ô input nhập link xuất hiện khi bấm mũi tên toggle */}
-            {showMetaLink && (
-              <input 
-                type="text" placeholder="Dán link bài viết Meta..." 
-                value={metaLink} onChange={(e) => setMetaLink(e.target.value)}
-                style={{ width: '100%', marginTop: '6px', padding: '6px 8px', borderRadius: '4px', border: '1px solid #cbd5e0', fontSize: '13px' }}
-              />
-            )}
-
-            {showYoutubeLink && (
-              <input 
-                type="text" placeholder="Dán link video YouTube..." 
-                value={youtubeLink} onChange={(e) => setYoutubeLink(e.target.value)}
-                style={{ width: '100%', marginTop: '6px', padding: '6px 8px', borderRadius: '4px', border: '1px solid #cbd5e0', fontSize: '13px' }}
-              />
-            )}
-
-            {showTiktokLink && (
-              <input 
-                type="text" placeholder="Dán link video TikTok..." 
-                value={tiktokLink} onChange={(e) => setTiktokLink(e.target.value)}
-                style={{ width: '100%', marginTop: '6px', padding: '6px 8px', borderRadius: '4px', border: '1px solid #cbd5e0', fontSize: '13px' }}
-              />
-            )}
           </div>
 
-          <div className="popup-footer" style={{ padding: 0, background: 'transparent', border: 'none', marginTop: '16px' }}>
-            <button type="submit" className="popup-submit-btn" disabled={uploading}>
-              {uploading ? "Đang đẩy lên mây..." : "Lưu Lại"}
-            </button>
-          </div>
+          <button type="submit" className="popup-submit-btn" disabled={uploading}>
+            {uploading ? "Đang xử lý..." : "Lưu Lại"}
+          </button>
         </form>
       </div>
     </div>
