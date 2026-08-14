@@ -13,9 +13,18 @@ export default function SocialSeriesPopup({ isOpen, onClose, onSave, onDelete, l
   const [imagePreview, setImagePreview] = useState('');
   const [uploading, setUploading] = useState(false);
 
+  // Trạng thái Checkbox, Link & Trạng thái mở rộng ô nhập link (showLinkInput)
   const [postedMeta, setPostedMeta] = useState(false);
+  const [metaLink, setMetaLink] = useState('');
+  const [showMetaLink, setShowMetaLink] = useState(false);
+
   const [postedYouTube, setPostedYouTube] = useState(false);
+  const [youtubeLink, setYoutubeLink] = useState('');
+  const [showYoutubeLink, setShowYoutubeLink] = useState(false);
+
   const [postedTikTok, setPostedTikTok] = useState(false);
+  const [tiktokLink, setTiktokLink] = useState('');
+  const [showTiktokLink, setShowTiktokLink] = useState(false);
 
   // Hàm chuyển tiếng Việt có dấu thành slug không dấu chuẩn xác
   const slugify = (text) => {
@@ -37,8 +46,16 @@ export default function SocialSeriesPopup({ isOpen, onClose, onSave, onDelete, l
       setImagePreview(lastSavedData?.imagePreview || lastSavedData?.thumbnail_url || '');
       
       setPostedMeta(lastSavedData?.postedMeta || false);
+      setMetaLink(lastSavedData?.metaLink || '');
+      setShowMetaLink(!!lastSavedData?.metaLink);
+
       setPostedYouTube(lastSavedData?.postedYouTube || false);
+      setYoutubeLink(lastSavedData?.youtubeLink || '');
+      setShowYoutubeLink(!!lastSavedData?.youtubeLink);
+
       setPostedTikTok(lastSavedData?.postedTikTok || false);
+      setTiktokLink(lastSavedData?.tiktokLink || '');
+      setShowTiktokLink(!!lastSavedData?.tiktokLink);
 
       setImageFile(null);
       setUploading(false);
@@ -179,8 +196,11 @@ export default function SocialSeriesPopup({ isOpen, onClose, onSave, onDelete, l
       imagePreview: finalImageUrl,
       thumbnail_url: finalImageUrl,
       postedMeta,
+      metaLink: postedMeta ? metaLink : '',
       postedYouTube,
+      youtubeLink: postedYouTube ? youtubeLink : '',
       postedTikTok,
+      tiktokLink: postedTikTok ? tiktokLink : '',
       updatedAt: new Date().toISOString()
     };
 
@@ -205,37 +225,22 @@ export default function SocialSeriesPopup({ isOpen, onClose, onSave, onDelete, l
           <h3 style={{ margin: 0 }}>{lastSavedData ? "Cập Nhật mục Series" : "Thêm mục Mới"}</h3>
           
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-            {/* Chỉ hiện nút Xóa khi đang ở chế độ Cập Nhật */}
             {lastSavedData && (
               <button 
                 type="button" 
                 onClick={handleDeleteClick} 
                 title="Xóa mục này"
                 style={{
-                  background: '#fff5f5',
-                  color: '#e53e3e',
-                  border: '1px solid #feb2b2',
-                  borderRadius: '50%',
-                  width: '32px',
-                  height: '32px',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '15px',
-                  fontWeight: 'bold'
+                  background: '#fff5f5', color: '#e53e3e', border: '1px solid #feb2b2',
+                  borderRadius: '50%', width: '32px', height: '32px', cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '15px', fontWeight: 'bold'
                 }}
               >
                 🗑️
               </button>
             )}
 
-            <button 
-              type="button" 
-              className="popup-close-btn" 
-              onClick={onClose}
-              style={{ margin: 0 }}
-            >
+            <button type="button" className="popup-close-btn" onClick={onClose} style={{ margin: 0 }}>
               &times;
             </button>
           </div>
@@ -281,12 +286,7 @@ export default function SocialSeriesPopup({ isOpen, onClose, onSave, onDelete, l
                 WebkitTapHighlightColor: 'transparent', userSelect: 'none'
               }}>
                 📁 Chọn ảnh
-                <input 
-                  type="file" 
-                  accept="image/*" 
-                  onChange={handleImageChange} 
-                  style={{ display: 'none' }} 
-                />
+                <input type="file" accept="image/*" onChange={handleImageChange} style={{ display: 'none' }} />
               </label>
             </div>
 
@@ -297,9 +297,7 @@ export default function SocialSeriesPopup({ isOpen, onClose, onSave, onDelete, l
                   <span style={{ fontSize: '12px', color: '#4a5568' }}>Đã sẵn sàng tải lên mây!</span>
                 </div>
                 <button 
-                  type="button" 
-                  onClick={handleRemoveImage}
-                  title="Xóa hình này"
+                  type="button" onClick={handleRemoveImage} title="Xóa hình này"
                   style={{ background: '#feb2b2', color: '#9b2c2c', border: 'none', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '14px' }}
                 >
                   &times;
@@ -308,45 +306,103 @@ export default function SocialSeriesPopup({ isOpen, onClose, onSave, onDelete, l
             )}
           </div>
 
+          {/* Phần Nền tảng đã đăng: 3 mục nằm ngang, có nút mũi tên toggle link riêng */}
           <div className="form-group">
             <label>Nền tảng đã đăng:</label>
-            <div style={{ display: 'flex', gap: '20px', background: '#f8f9fa', padding: '12px 14px', borderRadius: '8px', border: '1px solid #e2e8f0', marginTop: '4px' }}>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: '500', color: '#2d3748' }}>
-                <input 
-                  type="checkbox" 
-                  checked={postedMeta} 
-                  onChange={(e) => setPostedMeta(e.target.checked)}
-                  style={{ width: '16px', height: '16px', cursor: 'pointer' }}
-                />
-                Meta
-              </label>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: '500', color: '#2d3748' }}>
-                <input 
-                  type="checkbox" 
-                  checked={postedYouTube} 
-                  onChange={(e) => setPostedYouTube(e.target.checked)}
-                  style={{ width: '16px', height: '16px', cursor: 'pointer' }}
-                />
-                YouTube
-              </label>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '14px', fontWeight: '500', color: '#2d3748' }}>
-                <input 
-                  type="checkbox" 
-                  checked={postedTikTok} 
-                  onChange={(e) => setPostedTikTok(e.target.checked)}
-                  style={{ width: '16px', height: '16px', cursor: 'pointer' }}
-                />
-                TikTok
-              </label>
+            
+            {/* 3 icon nằm ngang 1 hàng */}
+            <div style={{ display: 'flex', gap: '15px', background: '#f8f9fa', padding: '12px 14px', borderRadius: '8px', border: '1px solid #e2e8f0', marginTop: '4px', flexWrap: 'wrap' }}>
+              
+              {/* Meta */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: '500', color: '#2d3748' }}>
+                  <input 
+                    type="checkbox" checked={postedMeta} 
+                    onChange={(e) => setPostedMeta(e.target.checked)}
+                    style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                  />
+                  Meta
+                </label>
+                <button 
+                  type="button" 
+                  onClick={() => setShowMetaLink(!showMetaLink)}
+                  title="Nhập link Meta"
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '12px', color: '#4a5568', padding: '2px 4px' }}
+                >
+                  {showMetaLink ? '▲' : '▼'}
+                </button>
+              </div>
+
+              {/* YouTube */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: '500', color: '#2d3748' }}>
+                  <input 
+                    type="checkbox" checked={postedYouTube} 
+                    onChange={(e) => setPostedYouTube(e.target.checked)}
+                    style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                  />
+                  YouTube
+                </label>
+                <button 
+                  type="button" 
+                  onClick={() => setShowYoutubeLink(!showYoutubeLink)}
+                  title="Nhập link YouTube"
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '12px', color: '#4a5568', padding: '2px 4px' }}
+                >
+                  {showYoutubeLink ? '▲' : '▼'}
+                </button>
+              </div>
+
+              {/* TikTok */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: '500', color: '#2d3748' }}>
+                  <input 
+                    type="checkbox" checked={postedTikTok} 
+                    onChange={(e) => setPostedTikTok(e.target.checked)}
+                    style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                  />
+                  TikTok
+                </label>
+                <button 
+                  type="button" 
+                  onClick={() => setShowTiktokLink(!showTiktokLink)}
+                  title="Nhập link TikTok"
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '12px', color: '#4a5568', padding: '2px 4px' }}
+                >
+                  {showTiktokLink ? '▲' : '▼'}
+                </button>
+              </div>
+
             </div>
+
+            {/* Các ô input nhập link xuất hiện khi bấm mũi tên toggle */}
+            {showMetaLink && (
+              <input 
+                type="text" placeholder="Dán link bài viết Meta..." 
+                value={metaLink} onChange={(e) => setMetaLink(e.target.value)}
+                style={{ width: '100%', marginTop: '6px', padding: '6px 8px', borderRadius: '4px', border: '1px solid #cbd5e0', fontSize: '13px' }}
+              />
+            )}
+
+            {showYoutubeLink && (
+              <input 
+                type="text" placeholder="Dán link video YouTube..." 
+                value={youtubeLink} onChange={(e) => setYoutubeLink(e.target.value)}
+                style={{ width: '100%', marginTop: '6px', padding: '6px 8px', borderRadius: '4px', border: '1px solid #cbd5e0', fontSize: '13px' }}
+              />
+            )}
+
+            {showTiktokLink && (
+              <input 
+                type="text" placeholder="Dán link video TikTok..." 
+                value={tiktokLink} onChange={(e) => setTiktokLink(e.target.value)}
+                style={{ width: '100%', marginTop: '6px', padding: '6px 8px', borderRadius: '4px', border: '1px solid #cbd5e0', fontSize: '13px' }}
+              />
+            )}
           </div>
 
           <div className="popup-footer" style={{ padding: 0, background: 'transparent', border: 'none', marginTop: '16px' }}>
-            <button 
-              type="submit" 
-              className="popup-submit-btn" 
-              disabled={uploading}
-            >
+            <button type="submit" className="popup-submit-btn" disabled={uploading}>
               {uploading ? "Đang đẩy lên mây..." : "Lưu Lại"}
             </button>
           </div>

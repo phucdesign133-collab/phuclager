@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { supabase } from "./utils/supabaseClient";
 import "../css/Grid.css";
 import SearchBar from "./searchBar";
 import { FaFacebook, FaYoutube, FaTiktok } from "react-icons/fa";
@@ -21,7 +20,7 @@ export default function SocialList({ activeSeries, seriesItems, onBack, onOpenAd
 
   return (
     <div className="grid-container">
-      <div className="social-header-sticky">
+      <div className="sticky-header-container">
         <div className="social-header-top-row">
           <button type="button" onClick={onBack} title="Quay lại danh sách Series" className="social-back-btn">
             ←
@@ -39,7 +38,7 @@ export default function SocialList({ activeSeries, seriesItems, onBack, onOpenAd
       {!sortedItems || sortedItems.length === 0 ? (
         <div className="grid-no-data social-no-data">Chưa có mục nào trong series này.</div>
       ) : (
-        <div className="social-list-grid">
+        <div className="phuc-social-grid">
           {sortedItems.map((item) => {
             const displayKey = item.clipName || item.keyWord;
             if (!displayKey || displayKey.trim() === "") return null;
@@ -52,40 +51,74 @@ export default function SocialList({ activeSeries, seriesItems, onBack, onOpenAd
             const matchesSearch = titleDisplay.toLowerCase().includes(searchTerm.toLowerCase());
             if (searchTerm.trim() !== "" && !matchesSearch) return null;
 
+            // Cấu hình danh sách nền tảng kèm link tương ứng
+            const platforms = [
+              { active: item.postedMeta, link: item.metaLink, icon: <FaFacebook />, name: "Meta" },
+              { active: item.postedYouTube, link: item.youtubeLink, icon: <FaYoutube />, name: "YouTube" },
+              { active: item.postedTikTok, link: item.tiktokLink, icon: <FaTiktok />, name: "TikTok" }
+            ];
+
             return (
               <div
                 key={actualIndex}
-                onClick={() => onEditItem && onEditItem(item, actualIndex)}
-                className="social-list-card"
+                className="phuc-social-card"
               >
-                {/* Ảnh nền */}
-                <div className="social-list-image-wrapper">
+                {/* Click vào ảnh hoặc thân card để sửa item */}
+                <div className="phuc-social-img-box" onClick={() => onEditItem && onEditItem(item, actualIndex)}>
                   {item.imagePreview ? (
-                    <img src={item.imagePreview} alt="Preview" className="social-list-img" />
+                    <img src={item.imagePreview} alt="Preview" />
                   ) : (
-                    <div className="social-list-no-image">Chưa có ảnh</div>
+                    <div className="phuc-social-no-img">Chưa có ảnh</div>
                   )}
-                  <div className="social-list-gradient-overlay" />
+                  <div className="phuc-social-overlay" />
                 </div>
 
-                {/* Nội dung TOP */}
-                <div className="social-list-content-top">
-                  <div className="social-list-item-title">{titleDisplay}</div>
-                  {item.chapter && <div className="social-list-item-date">({item.chapter})</div>}
+                <div className="phuc-social-text-top" onClick={() => onEditItem && onEditItem(item, actualIndex)}>
+                  <div className="phuc-social-title-text">{titleDisplay}</div>
+                  {item.chapter && <div style={{ fontSize: '11px', opacity: 0.9 }}>({item.chapter})</div>}
                 </div>
 
-                {/* Nội dung BOTTOM: Icon kèm ô tích */}
-                <div className="social-list-content-bottom">
-                  {[
-                    { name: "Meta", active: item.postedMeta, icon: <FaFacebook /> },
-                    { name: "YouTube", active: item.postedYouTube, icon: <FaYoutube /> },
-                    { name: "TikTok", active: item.postedTikTok, icon: <FaTiktok /> }
-                  ].map((p, i) => (
-                    <div key={i} className={`social-list-platform-item ${p.active ? "active" : ""}`}>
-                      <span className="social-list-checkbox">{p.active ? "☑" : "☐"}</span>
-                      <span className="social-list-platform-icon">{p.icon}</span>
-                    </div>
-                  ))}
+                {/* Phần icon mạng xã hội phía dưới */}
+                <div className="phuc-social-icons-bottom">
+                  {platforms.map((p, i) => {
+                    const hasLink = p.link && p.link.trim() !== "";
+                    
+                    const iconContent = (
+                      <>
+                        <span>{p.active ? "☑" : "☐"}</span>
+                        <span>{p.icon}</span>
+                      </>
+                    );
+
+                    return (
+                      <div
+                        key={i}
+                        className={`phuc-social-platform-item ${p.active ? "active" : ""}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (p.active) {
+                            if (hasLink) {
+                              window.open(p.link, "_blank", "noopener,noreferrer");
+                            } else {
+                              alert(`Chưa có link cho nền tảng ${p.name}!`);
+                            }
+                          } else {
+                            onEditItem && onEditItem(item, actualIndex);
+                          }
+                        }}
+                        title={p.active ? (hasLink ? `Mở link ${p.name}` : `Chưa có link ${p.name}`) : `Chưa bật ${p.name}`}
+                        style={{
+                          display: 'flex', alignItems: 'center', gap: '3px',
+                          background: p.active ? '#58D68D' : 'rgba(0, 0, 0, 0.6)',
+                          color: p.active ? '#111' : '#cbd5e0', 
+                          fontWeight: p.active ? '600' : 'normal',
+                          padding: '3px 6px', borderRadius: '4px', fontSize: '11px', cursor: 'pointer'
+                        }}
+                      >
+                        {iconContent}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             );
