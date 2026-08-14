@@ -42,7 +42,6 @@ export default function Finance({ selectedFilter, isPopupOpen, setIsPopupOpen })
       const { data, error } = await supabase.from('finance_tables').select('*');
       if (error) throw error;
       if (data && data.length > 0) {
-        // Map dữ liệu từ các dòng trong bảng supabase tương ứng với từng module
         const daily = data.find(item => item.id === 'daily_data')?.content || [{ dayOfWeek: getCurrentDayOfWeek(), date: getCurrentDateFormatted(), income: "0", expense: "0", totalBalance: "43.375.199" }];
         const cards = data.find(item => item.id === 'credit_card_data')?.content || {};
         const balances = data.find(item => item.id === 'total_balance_data')?.content || [{
@@ -75,9 +74,23 @@ export default function Finance({ selectedFilter, isPopupOpen, setIsPopupOpen })
 
   useEffect(() => {
     fetchFinanceData();
+
+    // 1. Lắng nghe sự kiện custom nội bộ trong app
     const handleRealtimeChange = () => fetchFinanceData();
     window.addEventListener('supabase-data-changed', handleRealtimeChange);
-    return () => window.removeEventListener('supabase-data-changed', handleRealtimeChange);
+
+    // 2. Kích hoạt Supabase Realtime channel để tự động đồng bộ giữa thiết bị A và B ngay lập tức
+    const channel = supabase
+      .channel('public:finance_tables')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'finance_tables' }, (payload) => {
+        fetchFinanceData();
+      })
+      .subscribe();
+
+    return () => {
+      window.removeEventListener('supabase-data-changed', handleRealtimeChange);
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   // --- Handlers xử lý dữ liệu ---
