@@ -2,12 +2,11 @@ import React, { useState, useEffect } from "react";
 import { supabase } from "../utils/supabaseClient";
 import "../../css/Popup.css";
 
-export default function SocialSeriesPopup({ isOpen, onClose, onSave, lastSavedData, existingKeys = [] }) {
+export default function SocialSeriesPopup({ isOpen, onClose, onSave, onDelete, lastSavedData }) {
   if (!isOpen) return null;
 
   const [episode, setEpisode] = useState('');
   const [publishDateInput, setPublishDateInput] = useState(''); 
-  const [clipName, setClipName] = useState('');
   const [keyWord, setKeyWord] = useState('');
   
   const [imageFile, setImageFile] = useState(null);
@@ -18,7 +17,7 @@ export default function SocialSeriesPopup({ isOpen, onClose, onSave, lastSavedDa
   const [postedYouTube, setPostedYouTube] = useState(false);
   const [postedTikTok, setPostedTikTok] = useState(false);
 
-  // 1. Hàm chuyển tiếng Việt có dấu thành slug không dấu chuẩn xác
+  // Hàm chuyển tiếng Việt có dấu thành slug không dấu chuẩn xác
   const slugify = (text) => {
     return text
       .toString()
@@ -34,7 +33,6 @@ export default function SocialSeriesPopup({ isOpen, onClose, onSave, lastSavedDa
     if (isOpen) {
       setEpisode(lastSavedData?.episode || '');
       setPublishDateInput(lastSavedData?.publishDateRaw || lastSavedData?.chapter || '');
-      setClipName(lastSavedData?.clipName || '');
       setKeyWord(lastSavedData?.keyWord || '');
       setImagePreview(lastSavedData?.imagePreview || lastSavedData?.thumbnail_url || '');
       
@@ -47,23 +45,14 @@ export default function SocialSeriesPopup({ isOpen, onClose, onSave, lastSavedDa
     }
   }, [isOpen, lastSavedData]);
 
-  const handleClipNameChange = (e) => {
-    const val = e.target.value;
-    setClipName(val);
-    const generated = slugify(val);
-    if (generated) {
-      setKeyWord(generated);
-    }
-  };
-
-  // 2. Xử lý chọn ảnh & nén WebP tỷ lệ dọc 9:16 chuẩn xác
+  // Xử lý chọn ảnh & nén WebP tỷ lệ dọc chuẩn xác
   const handleImageChange = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     let generatedKey = keyWord.trim();
     if (!generatedKey) {
-      const baseName = slugify(clipName) || slugify(file.name.substring(0, file.name.lastIndexOf('.'))) || `item-${episode || 'img'}`;
+      const baseName = slugify(file.name.substring(0, file.name.lastIndexOf('.'))) || `item-${episode || 'img'}`;
       generatedKey = baseName;
       setKeyWord(generatedKey);
     }
@@ -90,7 +79,6 @@ export default function SocialSeriesPopup({ isOpen, onClose, onSave, lastSavedDa
 
         if (width > MAX_WIDTH) {
           width = MAX_WIDTH;
-          // Tỷ lệ dọc chuẩn 9:16 chính xác (Chiều cao = Chiều rộng * 16 / 9)
           height = Math.round(width * (16 / 9));
         }
 
@@ -136,8 +124,7 @@ export default function SocialSeriesPopup({ isOpen, onClose, onSave, lastSavedDa
     setImagePreview('');
   };
 
-  const trimmedKey = slugify(keyWord) || slugify(clipName) || `item-${episode || Date.now()}`;
-  const isDuplicateKey = existingKeys && existingKeys.includes(trimmedKey) && trimmedKey !== slugify(lastSavedData?.keyWord || '');
+  const trimmedKey = slugify(keyWord) || `item-${episode || Date.now()}`;
 
   const handleDateChange = (e) => {
     let raw = e.target.value.replace(/\D/g, '').slice(0, 8);
@@ -152,7 +139,6 @@ export default function SocialSeriesPopup({ isOpen, onClose, onSave, lastSavedDa
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (isDuplicateKey) return;
 
     setUploading(true);
     let finalImageUrl = imagePreview;
@@ -188,7 +174,7 @@ export default function SocialSeriesPopup({ isOpen, onClose, onSave, lastSavedDa
       episode,
       publishDateRaw: publishDateInput,
       chapter: publishDateInput,
-      clipName,
+      clipName: keyWord, 
       keyWord: trimmedKey,
       imagePreview: finalImageUrl,
       thumbnail_url: finalImageUrl,
@@ -203,12 +189,56 @@ export default function SocialSeriesPopup({ isOpen, onClose, onSave, lastSavedDa
     onClose();
   };
 
+  const handleDeleteClick = () => {
+    if (window.confirm("Bạn có chắc chắn muốn xóa mục này không?")) {
+      if (onDelete && lastSavedData) {
+        onDelete(lastSavedData);
+      }
+      onClose();
+    }
+  };
+
   return (
     <div className="popup-overlay">
       <div className="popup-container">
-        <div className="popup-header">
-          <h3>{lastSavedData ? "Cập Nhật mục Series" : "Thêm mục Mới"}</h3>
-          <button type="button" className="popup-close-btn" onClick={onClose}>&times;</button>
+        <div className="popup-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <h3 style={{ margin: 0 }}>{lastSavedData ? "Cập Nhật mục Series" : "Thêm mục Mới"}</h3>
+          
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            {/* Chỉ hiện nút Xóa khi đang ở chế độ Cập Nhật */}
+            {lastSavedData && (
+              <button 
+                type="button" 
+                onClick={handleDeleteClick} 
+                title="Xóa mục này"
+                style={{
+                  background: '#fff5f5',
+                  color: '#e53e3e',
+                  border: '1px solid #feb2b2',
+                  borderRadius: '50%',
+                  width: '32px',
+                  height: '32px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '15px',
+                  fontWeight: 'bold'
+                }}
+              >
+                🗑️
+              </button>
+            )}
+
+            <button 
+              type="button" 
+              className="popup-close-btn" 
+              onClick={onClose}
+              style={{ margin: 0 }}
+            >
+              &times;
+            </button>
+          </div>
         </div>
         
         <form onSubmit={handleSubmit} className="popup-form">
@@ -235,28 +265,15 @@ export default function SocialSeriesPopup({ isOpen, onClose, onSave, lastSavedDa
           </div>
 
           <div className="form-group">
-            <label>Tên clip / Mẫu:</label>
-            <input 
-              type="text" 
-              value={clipName} 
-              onChange={handleClipNameChange} 
-              placeholder="Nhập tên mô tả clip..." 
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Key định danh file ảnh & Upload:</label>
+            <label>Nhập tên clip / mẫu:</label>
             <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
               <input 
                 type="text" 
                 value={keyWord} 
-                onChange={(e) => setKeyWord(slugify(e.target.value))} 
-                placeholder="Tự sinh nếu để trống..." 
-                style={{ 
-                  flex: 1, 
-                  borderColor: isDuplicateKey ? '#e53e3e' : '#cbd5e0',
-                  color: isDuplicateKey ? '#e53e3e' : '#2d3748'
-                }}
+                onChange={(e) => setKeyWord(e.target.value)} 
+                placeholder="Nhập tên clip/mẫu..." 
+                style={{ flex: 1 }}
+                required
               />
               <label className="upload-btn-label" style={{ 
                 padding: '8px 12px', background: '#f0f2f5', border: '1px solid #ccc', 
@@ -273,16 +290,8 @@ export default function SocialSeriesPopup({ isOpen, onClose, onSave, lastSavedDa
               </label>
             </div>
 
-            {isDuplicateKey && (
-              <div style={{ marginTop: '6px', display: 'flex', justifyContent: 'flex-end' }}>
-                <span style={{ color: '#e53e3e', fontWeight: 'bold', fontSize: '13px' }}>
-                  ❌ Trùng key, vui lòng thêm hậu tố (-1, -2...)
-                </span>
-              </div>
-            )}
-
             {imagePreview && (
-              <div style={{ marginTop: '6px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#f8f9fa', padding: '6px 10px', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+              <div style={{ marginTop: '8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#f8f9fa', padding: '6px 10px', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <img src={imagePreview} alt="Preview" style={{ width: '36px', height: '36px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #cbd5e0' }} />
                   <span style={{ fontSize: '12px', color: '#4a5568' }}>Đã sẵn sàng tải lên mây!</span>
@@ -336,8 +345,7 @@ export default function SocialSeriesPopup({ isOpen, onClose, onSave, lastSavedDa
             <button 
               type="submit" 
               className="popup-submit-btn" 
-              disabled={uploading || isDuplicateKey}
-              style={{ opacity: isDuplicateKey ? 0.6 : 1, cursor: isDuplicateKey ? 'not-allowed' : 'pointer' }}
+              disabled={uploading}
             >
               {uploading ? "Đang đẩy lên mây..." : "Lưu Lại"}
             </button>

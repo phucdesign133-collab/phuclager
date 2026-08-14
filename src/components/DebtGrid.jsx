@@ -1,7 +1,7 @@
 import React from 'react';
 import '../css/Grid.css';
 
-export default function DebtGrid({ rawData = [] }) {
+export default function DebtGrid({ rawData = [], onDelete }) {
   const safeData = Array.isArray(rawData) ? rawData : [];
 
   // Sắp xếp theo ngày nhận mới nhất lên đầu
@@ -33,11 +33,18 @@ export default function DebtGrid({ rawData = [] }) {
     return str.charAt(0).toUpperCase() + str.slice(1);
   };
 
+  const handleDelete = (id, e) => {
+    e.stopPropagation();
+    if (window.confirm("Bạn đã trả xong khoản nợ này và muốn xóa nó?")) {
+      if (onDelete) onDelete(id);
+    }
+  };
+
   return (
     <div className="common-grid-container">
       {/* Thẻ tổng kết thông tin */}
-      <div className="grid-card" style={{ background: '#fcfcfc', borderLeft: '4px solid var(--primary-red, #b52b2b)' }}>
-        <div className="grid-body" style={{ padding: '12px 16px' }}>
+      <div className="grid-card total-debt-card" style={{ background: '#fcfcfc' }}>
+        <div className="grid-body" style={{ padding: '4px 0' }}>
           <div className="grid-row" style={{ marginBottom: '6px' }}>
             <span className="label" style={{ fontWeight: 'bold', color: '#333' }}>Tổng khoản vay:</span>
             <span className="value" style={{ fontWeight: 'bold', color: '#333' }}>{sortedData.length}</span>
@@ -65,37 +72,44 @@ export default function DebtGrid({ rawData = [] }) {
 
           return (
             <div key={item.id || index} className="grid-card">
-              <div className="grid-header" style={{ borderBottom: '1px solid #eee' }}>
+              <div className="grid-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: 0, paddingBottom: '8px' }}>
                 <span className="grid-date" style={{ fontWeight: 'bold', color: '#333' }}>
                   {creditorName}
                 </span>
+                <button 
+                  onClick={(e) => handleDelete(item.id, e)}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '15px', padding: '2px 6px' }}
+                  title="Xóa khoản nợ này"
+                >
+                  🗑️
+                </button>
               </div>
               
               <div className="grid-body">
                 <div className="grid-row">
                   <span className="label">Số tiền gốc:</span>
-                  <span className="value" style={{ fontWeight: 'bold' }}>{amountVal.toLocaleString('vi-VN')} đ</span>
+                  <span className="value amount">{amountVal.toLocaleString('vi-VN')} đ</span>
                 </div>
                 
                 <div className="grid-row">
                   <span className="label">Ngày nhận:</span>
-                  <span>{ngayNhanVal}</span>
+                  <span className="value">{ngayNhanVal}</span>
                 </div>
 
                 <div className="grid-row">
                   <span className="label">Ngày trả (Đến hạn):</span>
-                  <span>{dueDateVal}</span>
+                  <span className="value due-date">{dueDateVal}</span>
                 </div>
 
                 <div className="grid-row">
                   <span className="label">Lãi ({monthsVal}):</span>
-                  <span style={{ color: '#d9534f', fontWeight: '500' }}>{interestVal.toLocaleString('vi-VN')} đ</span>
+                  <span className="value interest">{interestVal.toLocaleString('vi-VN')} đ</span>
                 </div>
 
                 {item.note && (
-                  <div className="grid-row note-row" style={{ marginTop: '6px', fontSize: '13px', color: '#666', borderTop: '1px dashed #eee', paddingTop: '6px' }}>
+                  <div className="grid-row note-row" style={{ marginTop: '6px' }}>
                     <span className="label">Ghi chú:</span>
-                    <span>{item.note}</span>
+                    <span className="value note-text">{item.note}</span>
                   </div>
                 )}
               </div>

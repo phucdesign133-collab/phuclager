@@ -1,24 +1,18 @@
 import React, { useState, useEffect } from "react";
 import "../css/Tab.css";
+import { supabase } from "../components/utils/supabaseClient";
 
 // Components
 import DailyIncomeExpenseGrid from "../components/DailyIncomeExpenseGrid";
 import DailyIncomeExpensePopup from "../components/popup/DailyIncomeExpensePopup";
-
-// Thẻ tín dụng
 import CreditCardIconGrid from "../components/CreditCardIconGrid";
 import CreditCardGrid from "../components/CreditCardGrid";
 import CreditCardPopup from "../components/popup/CreditCardPopup";
-
-// Tổng số dư
 import TotalBalanceGrid from "../components/TotalBalanceGrid";
 import TotalBalancePopup from "../components/popup/TotalBalancePopup";
-
-// Nợ xã hội (Schulden-Monitoring)
 import DebtGrid from "../components/DebtGrid";
 import DebtPopup from "../components/popup/DebtPopup";
 
-// Hàm lấy ngày hiện tại chuẩn định dạng DD/MM/YYYY
 const getCurrentDateFormatted = () => {
   const today = new Date();
   const dd = String(today.getDate()).padStart(2, '0');
@@ -27,75 +21,72 @@ const getCurrentDateFormatted = () => {
   return `${dd}/${mm}/${yyyy}`;
 };
 
-// Hàm lấy tên thứ trong tuần hiện tại bằng tiếng Việt
 const getCurrentDayOfWeek = () => {
   const days = ["Chủ Nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"];
   return days[new Date().getDay()];
 };
 
 export default function Finance({ selectedFilter, isPopupOpen, setIsPopupOpen }) {
-  // Trạng thái lưu thẻ tín dụng đang được active
   const [activeCreditCard, setActiveCreditCard] = useState(null);
-
-  // Trạng thái lưu ngày đang được chọn để hiển thị động lên popup (Mặc định là ngày hôm nay)
   const [selectedDate, setSelectedDate] = useState(getCurrentDateFormatted());
 
-  // --- DỮ LIỆU TAB 1 ---
-  const [dailyData, setDailyData] = useState(() => {
-    const saved = localStorage.getItem("phuc_lager_daily_data");
-    return saved ? JSON.parse(saved) : [{ dayOfWeek: getCurrentDayOfWeek(), date: getCurrentDateFormatted(), income: "0", expense: "0", totalBalance: "43.375.199" }];
-  });
+  // States lưu dữ liệu
+  const [dailyData, setDailyData] = useState([]);
+  const [creditCardData, setCreditCardData] = useState({});
+  const [totalBalanceData, setTotalBalanceData] = useState([]);
+  const [debtData, setDebtData] = useState([]);
 
-  useEffect(() => {
-    localStorage.setItem("phuc_lager_daily_data", JSON.stringify(dailyData));
-  }, [dailyData]);
+  // Hàm fetch dữ liệu từ Supabase
+  const fetchFinanceData = async () => {
+    try {
+      const { data, error } = await supabase.from('finance_tables').select('*');
+      if (error) throw error;
+      if (data && data.length > 0) {
+        // Map dữ liệu từ các dòng trong bảng supabase tương ứng với từng module
+        const daily = data.find(item => item.id === 'daily_data')?.content || [{ dayOfWeek: getCurrentDayOfWeek(), date: getCurrentDateFormatted(), income: "0", expense: "0", totalBalance: "43.375.199" }];
+        const cards = data.find(item => item.id === 'credit_card_data')?.content || {};
+        const balances = data.find(item => item.id === 'total_balance_data')?.content || [{
+          dayOfWeek: getCurrentDayOfWeek(),
+          date: getCurrentDateFormatted(),
+          summe: 43375199,
+          bilanz: 0,
+          details: { techKonto: 37225655, vibKonto: 150000, tpKonto: 479, vpKonto: 0, grabKonto: 330783, kassenfrisch: 3736000, dasBargeld: 1771000, eWallet: 124007 }
+        }];
+        const debts = data.find(item => item.id === 'debt_data')?.content || [];
 
-  // --- DỮ LIỆU TAB 3: Thẻ tín dụng ---
-  const [creditCardData, setCreditCardData] = useState(() => {
-    const saved = localStorage.getItem("phuc_lager_credit_card_data");
-    return saved ? JSON.parse(saved) : {};
-  });
-
-  useEffect(() => {
-    localStorage.setItem("phuc_lager_credit_card_data", JSON.stringify(creditCardData));
-  }, [creditCardData]);
-
-  const handleSaveCreditCard = (newData) => {
-    if (!activeCreditCard) return;
-    setCreditCardData((prev) => ({
-      ...prev,
-      [activeCreditCard]: newData,
-    }));
+        setDailyData(daily);
+        setCreditCardData(cards);
+        setTotalBalanceData(balances);
+        setDebtData(debts);
+      }
+    } catch (err) {
+      console.error("Lỗi tải dữ liệu Finance:", err);
+    }
   };
 
-  // --- DỮ LIỆU TAB 4: Tổng số dư ---
-  const [totalBalanceData, setTotalBalanceData] = useState(() => {
-    const saved = localStorage.getItem("phuc_lager_total_balance_data");
-    return saved
-      ? JSON.parse(saved)
-      : [
-          {
-            dayOfWeek: getCurrentDayOfWeek(),
-            date: getCurrentDateFormatted(),
-            summe: 43375199,
-            bilanz: 0,
-            details: {
-              techKonto: 37225655,
-              vibKonto: 150000,
-              tpKonto: 479,
-              vpKonto: 0,
-              grabKonto: 330783,
-              kassenfrisch: 3736000,
-              dasBargeld: 1771000,
-              eWallet: 124007,
-            },
-          },
-        ];
-  });
+  // Hàm lưu dữ liệu lên Supabase
+  const syncToSupabase = async (id, content) => {
+    try {
+      await supabase.from('finance_tables').upsert({ id, content });
+    } catch (err) {
+      console.error("Lỗi đồng bộ Supabase:", err);
+    }
+  };
 
   useEffect(() => {
-    localStorage.setItem("phuc_lager_total_balance_data", JSON.stringify(totalBalanceData));
-  }, [totalBalanceData]);
+    fetchFinanceData();
+    const handleRealtimeChange = () => fetchFinanceData();
+    window.addEventListener('supabase-data-changed', handleRealtimeChange);
+    return () => window.removeEventListener('supabase-data-changed', handleRealtimeChange);
+  }, []);
+
+  // --- Handlers xử lý dữ liệu ---
+  const handleSaveCreditCard = (newData) => {
+    if (!activeCreditCard) return;
+    const updatedCards = { ...creditCardData, [activeCreditCard]: newData };
+    setCreditCardData(updatedCards);
+    syncToSupabase('credit_card_data', updatedCards);
+  };
 
   const handleSaveTotalBalance = (newData) => {
     const newSumme = Object.keys(newData.details)
@@ -125,86 +116,72 @@ export default function Finance({ selectedFilter, isPopupOpen, setIsPopupOpen })
       bilanz: bilanz,
     };
 
-    setTotalBalanceData((prev) => {
-      const existingIndex = prev.findIndex((item) => item.date === newData.date);
-      if (existingIndex >= 0) {
-        const updated = [...prev];
-        updated[existingIndex] = updatedRecord;
-        return updated;
-      } else {
-        return [...prev, updatedRecord];
-      }
-    });
+    let updatedBalances = [];
+    const existingIndex = totalBalanceData.findIndex((item) => item.date === newData.date);
+    if (existingIndex >= 0) {
+      updatedBalances = [...totalBalanceData];
+      updatedBalances[existingIndex] = updatedRecord;
+    } else {
+      updatedBalances = [...totalBalanceData, updatedRecord];
+    }
+
+    setTotalBalanceData(updatedBalances);
+    syncToSupabase('total_balance_data', updatedBalances);
+  };
+
+  const handleAddDebtData = (creditor, newItem) => {
+    const itemToSave = { ...newItem, creditor: creditor };
+    const updatedDebts = [itemToSave, ...(Array.isArray(debtData) ? debtData : [])];
+    setDebtData(updatedDebts);
+    syncToSupabase('debt_data', updatedDebts);
+    setIsPopupOpen(false);
   };
 
   const latestRecord = totalBalanceData[totalBalanceData.length - 1];
   const lastSavedDetails = latestRecord ? latestRecord.details : null;
 
-  // --- DỮ LIỆU TAB TỔNG DƯ NỢ (Schulden-Monitoring) ---
-  const [debtData, setDebtData] = useState(() => {
-    const saved = localStorage.getItem("phuc_lager_social_debt_data");
-    return saved ? JSON.parse(saved) : [];
-  });
-
-  useEffect(() => {
-    localStorage.setItem("phuc_lager_social_debt_data", JSON.stringify(debtData));
-  }, [debtData]);
-
-  const handleAddDebtData = (creditor, newItem) => {
-    const itemToSave = {
-      ...newItem,
-      creditor: creditor,
-    };
-    setDebtData((prev) => [itemToSave, ...(Array.isArray(prev) ? prev : [])]);
-    setIsPopupOpen(false);
-  };
-
   return (
     <div className="finance-wrapper">
       {selectedFilter === "thu-chi-moi-ngay" && (
         <>
-          <DailyIncomeExpenseGrid 
-            rawData={dailyData} 
-            onSelectDate={(date) => setSelectedDate(date)} 
-          />
+          <DailyIncomeExpenseGrid rawData={dailyData} onSelectDate={(date) => setSelectedDate(date)} />
           <DailyIncomeExpensePopup
             isOpen={isPopupOpen}
             onClose={() => setIsPopupOpen(false)}
             onSave={(newData) => {
-              setDailyData((prev) => {
-                const income = Number(newData.income || 0);
-                const expense = Number(newData.expense || 0);
+              const income = Number(newData.income || 0);
+              const expense = Number(newData.expense || 0);
+              const existingIndex = dailyData.findIndex((item) => item.date === newData.date);
 
-                const existingIndex = prev.findIndex((item) => item.date === newData.date);
-
-                let previousBalance = 43375199;
-                if (prev.length > 0) {
-                  const lastItem = prev[existingIndex > 0 ? existingIndex - 1 : prev.length - 1];
-                  if (lastItem && lastItem.totalBalance) {
-                    previousBalance = Number(String(lastItem.totalBalance).replace(/\./g, "")) || 43375199;
-                  }
+              let previousBalance = 43375199;
+              if (dailyData.length > 0) {
+                const lastItem = dailyData[existingIndex > 0 ? existingIndex - 1 : dailyData.length - 1];
+                if (lastItem && lastItem.totalBalance) {
+                  previousBalance = Number(String(lastItem.totalBalance).replace(/\./g, "")) || 43375199;
                 }
+              }
 
-                const newTotalBalance = previousBalance + income - expense;
+              const newTotalBalance = previousBalance + income - expense;
+              const updatedRecord = {
+                dayOfWeek: getCurrentDayOfWeek(),
+                date: newData.date,
+                income: income.toLocaleString("vi-VN"),
+                expense: expense.toLocaleString("vi-VN"),
+                totalBalance: newTotalBalance.toLocaleString("vi-VN"),
+                incomeDetails: newData.incomeDetails,
+                expenseDetails: newData.expenseDetails,
+              };
 
-                const updatedRecord = {
-                  dayOfWeek: getCurrentDayOfWeek(),
-                  date: newData.date,
-                  income: income.toLocaleString("vi-VN"),
-                  expense: expense.toLocaleString("vi-VN"),
-                  totalBalance: newTotalBalance.toLocaleString("vi-VN"),
-                  incomeDetails: newData.incomeDetails,
-                  expenseDetails: newData.expenseDetails,
-                };
+              let updatedDaily = [];
+              if (existingIndex >= 0) {
+                updatedDaily = [...dailyData];
+                updatedDaily[existingIndex] = updatedRecord;
+              } else {
+                updatedDaily = [...dailyData, updatedRecord];
+              }
 
-                if (existingIndex >= 0) {
-                  const updated = [...prev];
-                  updated[existingIndex] = updatedRecord;
-                  return updated;
-                } else {
-                  return [...prev, updatedRecord];
-                }
-              });
+              setDailyData(updatedDaily);
+              syncToSupabase('daily_data', updatedDaily);
               setIsPopupOpen(false);
             }}
             currentDate={selectedDate}
@@ -216,36 +193,26 @@ export default function Finance({ selectedFilter, isPopupOpen, setIsPopupOpen })
       {selectedFilter === "tong-du-no" && (
         <>
           <DebtGrid rawData={debtData} />
-          <DebtPopup 
-            isOpen={isPopupOpen} 
-            onClose={() => setIsPopupOpen(false)} 
-            onAddDebt={handleAddDebtData}
-          />
+          <DebtPopup isOpen={isPopupOpen} onClose={() => setIsPopupOpen(false)} onAddDebt={handleAddDebtData} />
         </>
       )}
 
       {selectedFilter === "the-tin-dung" && (
         <>
           <CreditCardIconGrid selectedCard={activeCreditCard} onSelectCard={(cardId) => setActiveCreditCard(cardId)} allCardsData={creditCardData} />
-
           {activeCreditCard && (
             <CreditCardGrid 
               selectedCard={activeCreditCard} 
               rawData={creditCardData[activeCreditCard] || null} 
-              onEdit={(cardId, data) => {
-                setActiveCreditCard(cardId);
-                setIsPopupOpen(true);
-              }}
+              onEdit={() => setIsPopupOpen(true)}
               onDelete={(cardId) => {
-                setCreditCardData((prev) => {
-                  const updated = { ...prev };
-                  delete updated[cardId];
-                  return updated;
-                });
+                const updatedCards = { ...creditCardData };
+                delete updatedCards[cardId];
+                setCreditCardData(updatedCards);
+                syncToSupabase('credit_card_data', updatedCards);
               }}
             />
           )}
-
           <CreditCardPopup
             isOpen={isPopupOpen}
             onClose={() => setIsPopupOpen(false)}
@@ -260,13 +227,7 @@ export default function Finance({ selectedFilter, isPopupOpen, setIsPopupOpen })
       {selectedFilter === "tong-so-du" && (
         <>
           <TotalBalanceGrid rawData={totalBalanceData} />
-          <TotalBalancePopup
-            isOpen={isPopupOpen}
-            onClose={() => setIsPopupOpen(false)}
-            onSave={handleSaveTotalBalance}
-            currentDate={selectedDate}
-            lastSavedData={lastSavedDetails}
-          />
+          <TotalBalancePopup isOpen={isPopupOpen} onClose={() => setIsPopupOpen(false)} onSave={handleSaveTotalBalance} currentDate={selectedDate} lastSavedData={lastSavedDetails} />
         </>
       )}
     </div>

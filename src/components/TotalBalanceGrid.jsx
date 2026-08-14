@@ -29,10 +29,10 @@ export default function TotalBalanceGrid({ rawData = [] }) {
 
           if (bilanzVal > 0) {
             trend = 'up';
-            diffText = `+${bilanzVal.toLocaleString('vi-VN')} đ so với hôm qua`;
+            diffText = `+${bilanzVal.toLocaleString('vi-VN')} đ`;
           } else if (bilanzVal < 0) {
             trend = 'down';
-            diffText = `${bilanzVal.toLocaleString('vi-VN')} đ so với hôm qua`;
+            diffText = `${bilanzVal.toLocaleString('vi-VN')} đ`;
           } else {
             trend = 'none'; 
           }

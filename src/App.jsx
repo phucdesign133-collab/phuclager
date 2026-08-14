@@ -1,6 +1,7 @@
 import { Routes, Route, useLocation } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import { dropdownData } from "./datas/dropdownData";
+import { supabase } from "./components/utils/supabaseClient"; // Đảm bảo đường dẫn import đúng file supabaseClient của anh
 import "./App.css";
 
 // Components
@@ -47,6 +48,33 @@ function App() {
   // State lưu tên series đang mở trong tab Social để ẩn Header khi vào SocialList
   const [activeSocialSeries, setActiveSocialSeries] = useState(null);
 
+  // --- THÊM ĐOẠN LẮNG NGHE REALTIME CHO TOÀN BỘ APP ---
+  useEffect(() => {
+    // Tạo channel lắng nghe thay đổi trên toàn bộ schema public (hoặc theo table cụ thể của anh)
+    const channel = supabase
+      .channel('global-db-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*', // Lắng nghe mọi sự kiện: INSERT, UPDATE, DELETE
+          schema: 'public',
+        },
+        (payload) => {
+          console.log('Phát hiện thay đổi dữ liệu từ thiết bị khác:', payload);
+          
+          // Phát ra một Custom Event để các trang con tự động gọi lại hàm fetch dữ liệu
+          window.dispatchEvent(new CustomEvent('supabase-data-changed', { detail: payload }));
+        }
+      )
+      .subscribe();
+
+    // Dọn dẹp channel khi unmount app
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+  // ----------------------------------------------------
+
   // Reset activeSocialSeries mỗi khi đổi tab hoặc đổi URL
   useEffect(() => {
     setActiveSocialSeries(null);
@@ -69,9 +97,6 @@ function App() {
   }, []);
 
   const handleUpdateClick = () => {
-    if (currentTab === "finance" && selectedValue === "the-tin-dung") {
-      // Xử lý riêng nếu cần
-    }
     setIsPopupOpen(true);
   };
 
@@ -79,7 +104,6 @@ function App() {
     <div className="app-container">
       <ScrollToTop />
 
-      {/* Chỉ hiển thị Header khi không ở tab Social đang xem SocialList */}
       {!(currentTab === "social" && activeSocialSeries) && (
         <Header
           currentTab={currentTab}

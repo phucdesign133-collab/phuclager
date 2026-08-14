@@ -7,8 +7,9 @@ export const dropdownData = {
     { value: "tong-du-no", label: "Tổng dư nợ" },
   ],
   goal: [
-    { value: "muc-tieu-ngan-han", label: "Mục tiêu ngắn hạn" },
-    { value: "muc-tieu-dai-han", label: "Mục tiêu dài hạn" },
+    { value: "ke-hoach-tuan", label: "Kế hoạch tuần" },
+    { value: "muc-tieu-ngan-han", label: "Kế hoạch ngắn hạn" },
+    { value: "muc-tieu-dai-han", label: "Kế hoạch dài hạn" },
   ],
   client: [
     { value: "khach-su-kien", label: "Khách sự kiện" },
@@ -18,11 +19,6 @@ export const dropdownData = {
     { value: "doi-tac-nha-cung-cap", label: "Đối tác nhà cung cấp" },
   ],
   social: [
-    // { value: "quan-ly-bai-dang", label: "Quản lý bài đăng" },
-    // { value: "quan-ly-src-raw", label: "Quản lý src raw" },
-    // { value: "quan-ly-clip-dung", label: "Quản lý clip dựng" },
-    // { value: "quan-ly-thumb", label: "Quản lý thumb" },
-    // { value: "theo-doi-nen-tang", label: "Theo dõi các nền tảng" },
     { value: "quan-ly-series", label: "Quản lý Series" },
     { value: "quan-ly-ideas", label: "Quản lý Ideas" },
   ],

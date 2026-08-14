@@ -14,7 +14,7 @@ export default function Footer() {
       </Link>
       <Link to="/goal" className={location.pathname === '/goal' ? 'nav-item active' : 'nav-item'}>
         <FaBullseye className="nav-icon" />
-        <span>Mục tiêu</span>
+        <span>Kế hoạch</span>
       </Link>
       <Link to="/client" className={location.pathname === '/clients' ? 'nav-item active' : 'nav-item'}>
         <FaAddressBook className="nav-icon" />

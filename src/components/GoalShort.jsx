@@ -7,7 +7,7 @@ export default function GoalShort({ rawData, onEdit, onDelete }) {
   if (!rawData || rawData.length === 0) {
     return (
       <div className="grid-no-data">
-        Chưa có mục tiêu ngắn hạn nào được thiết lập. Hãy bấm nút "Cập nhật" để thêm mới!
+        Chưa có kế hoạch ngắn hạn nào được thiết lập. Hãy bấm nút "Cập nhật" để thêm mới!
       </div>
     );
   }
@@ -51,7 +51,7 @@ export default function GoalShort({ rawData, onEdit, onDelete }) {
                   type="button"
                   onClick={() => onEdit && onEdit(item, index)} 
                   style={{ background: "none", border: "none", cursor: "pointer", fontSize: "15px" }}
-                  title="Chỉnh sửa mục tiêu"
+                  title="Chỉnh sửa kế hoạch"
                 >
                   <EditIcon size={16} color="#4a5568" />
                 </button>
@@ -59,7 +59,7 @@ export default function GoalShort({ rawData, onEdit, onDelete }) {
                   type="button"
                   onClick={() => onDelete && onDelete(index)} 
                   style={{ background: "none", border: "none", cursor: "pointer", fontSize: "15px" }}
-                  title="Xóa mục tiêu"
+                  title="Xóa kế hoạch"
                 >
                   <TrashIcon size={15} color="#e53e3e" />
                 </button>

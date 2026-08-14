@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "../css/Tab.css";
-
+import { supabase } from "../components/utils/supabaseClient";
 import GoalShort from "../components/GoalShort";
 import GoalLong from "../components/GoalLong";
 import GoalPopup from "../components/popup/GoalPopup";
@@ -14,55 +14,67 @@ const getCurrentDateFormatted = () => {
 };
 
 export default function Goal({ selectedFilter, isPopupOpen, setIsPopupOpen }) {
-  const [selectedDate, setSelectedDate] = useState(getCurrentDateFormatted());
-  const [editingGoal, setEditingGoal] = useState(null); // Lưu thông tin mục tiêu đang chỉnh sửa
-  const [editingIndex, setEditingIndex] = useState(null); // Lưu vị trí index đang sửa
+  const [selectedDate] = useState(getCurrentDateFormatted());
+  const [editingGoal, setEditingGoal] = useState(null);
+  const [editingIndex, setEditingIndex] = useState(null);
+  const [goalData, setGoalData] = useState([]);
 
-  const [goalData, setGoalData] = useState(() => {
-    const saved = localStorage.getItem("phuc_lager_goal_data");
-    return saved ? JSON.parse(saved) : [];
-  });
+  const fetchGoals = async () => {
+    try {
+      const { data, error } = await supabase.from('goal_tables').select('*').eq('id', 'goals_main').single();
+      if (error && error.code !== 'PGRST116') throw error;
+      if (data) setGoalData(data.content || []);
+    } catch (err) {
+      console.error("Lỗi tải Goals:", err);
+    }
+  };
+
+  const syncGoals = async (updatedList) => {
+    try {
+      await supabase.from('goal_tables').upsert({ id: 'goals_main', content: updatedList });
+    } catch (err) {
+      console.error("Lỗi đồng bộ Goals:", err);
+    }
+  };
 
   useEffect(() => {
-    localStorage.setItem("phuc_lager_goal_data", JSON.stringify(goalData));
-  }, [goalData]);
+    fetchGoals();
+    const handleRealtimeChange = () => fetchGoals();
+    window.addEventListener('supabase-data-changed', handleRealtimeChange);
+    return () => window.removeEventListener('supabase-data-changed', handleRealtimeChange);
+  }, []);
 
-  // Hàm xử lý khi lưu (Thêm mới hoặc Cập nhật)
   const handleSaveGoal = (newData) => {
+    let updatedList = [];
     if (editingIndex !== null) {
-      // Đang sửa mục tiêu cũ
-      setGoalData((prev) => {
-        const updated = [...prev];
-        updated[editingIndex] = newData;
-        return updated;
-      });
+      updatedList = [...goalData];
+      updatedList[editingIndex] = newData;
     } else {
-      // Thêm mới mục tiêu
-      setGoalData((prev) => [newData, ...prev]);
+      updatedList = [newData, ...goalData];
     }
-    // Reset trạng thái edit
+    setGoalData(updatedList);
+    syncGoals(updatedList);
+
     setEditingGoal(null);
     setEditingIndex(null);
     setIsPopupOpen(false);
   };
 
-  // Hàm mở popup chỉnh sửa
   const handleEdit = (item, index) => {
     setEditingGoal(item);
     setEditingIndex(index);
     setIsPopupOpen(true);
   };
 
-  // Hàm xóa mục tiêu có xác nhận
-  const handleDelete = (indexToDelete, listTypeData, originalGoalData) => {
-    if (window.confirm("Bạn có chắc chắn muốn xóa mục tiêu này không?")) {
-      // Tìm item thực tế trong mảng gốc goalData để xóa chuẩn xác
+  const handleDelete = (indexToDelete, listTypeData) => {
+    if (window.confirm("Bạn có chắc chắn muốn xóa kế hoạch này không?")) {
       const itemToDelete = listTypeData[indexToDelete];
-      setGoalData((prev) => prev.filter((item) => item !== itemToDelete));
+      const updatedList = goalData.filter((item) => item !== itemToDelete);
+      setGoalData(updatedList);
+      syncGoals(updatedList);
     }
   };
 
-  // Lọc chống trùng lặp dữ liệu
   const uniqueGoalData = goalData.filter((item, index, self) =>
     index === self.findIndex((t) => t.goalName === item.goalName && t.startDate === item.startDate)
   );
@@ -76,11 +88,10 @@ export default function Goal({ selectedFilter, isPopupOpen, setIsPopupOpen }) {
         <GoalShort 
           rawData={shortTermData} 
           onEdit={(item, idx) => {
-            // Tìm đúng index gốc từ mảng unique hoặc goalData
             const originalIdx = goalData.findIndex(g => g.goalName === item.goalName && g.startDate === item.startDate);
             handleEdit(item, originalIdx !== -1 ? originalIdx : idx);
           }}
-          onDelete={(idx) => handleDelete(idx, shortTermData, goalData)}
+          onDelete={(idx) => handleDelete(idx, shortTermData)}
         />
       )}
 
@@ -91,7 +102,7 @@ export default function Goal({ selectedFilter, isPopupOpen, setIsPopupOpen }) {
             const originalIdx = goalData.findIndex(g => g.goalName === item.goalName && g.startDate === item.startDate);
             handleEdit(item, originalIdx !== -1 ? originalIdx : idx);
           }}
-          onDelete={(idx) => handleDelete(idx, longTermData, goalData)}
+          onDelete={(idx) => handleDelete(idx, longTermData)}
         />
       )}
 

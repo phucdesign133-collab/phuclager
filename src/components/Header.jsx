@@ -4,7 +4,7 @@ import { dropdownData } from '../datas/dropdownData';
 
 const tabTitles = {
   finance: "Quản lý tài chính",
-  goal: "Quản lý mục tiêu",
+  goal: "Quản lý kế hoạch",
   client: "Quản lý khách hàng",
   social: "Quản lý MXH",
   supplies: "Quản lý vật tư"
