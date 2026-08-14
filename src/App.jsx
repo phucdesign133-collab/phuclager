@@ -1,12 +1,13 @@
 import { Routes, Route, useLocation } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import { dropdownData } from "./datas/dropdownData";
-import { supabase } from "./components/utils/supabaseClient"; // Đảm bảo đường dẫn import đúng file supabaseClient của anh
+import { supabase } from "./components/utils/supabaseClient"; 
 import "./App.css";
 
 // Components
 import Header from "./components/Header";
 import Footer from "./components/Footer";
+import CalculatorLogin from "./components/CalculatorLogin"; // Đảm bảo đường dẫn import đúng vị trí file CalculatorLogin của anh
 
 // Pages
 import Finance from "./pages/Finance";
@@ -25,6 +26,9 @@ const ScrollToTop = () => {
 
 function App() {
   const location = useLocation();
+
+  // State quản lý trạng thái đăng nhập ẩn qua máy tính (Mặc định là false - chưa đăng nhập)
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const getCurrentTab = () => {
     const path = location.pathname;
@@ -50,25 +54,21 @@ function App() {
 
   // --- THÊM ĐOẠN LẮNG NGHE REALTIME CHO TOÀN BỘ APP ---
   useEffect(() => {
-    // Tạo channel lắng nghe thay đổi trên toàn bộ schema public (hoặc theo table cụ thể của anh)
     const channel = supabase
       .channel('global-db-changes')
       .on(
         'postgres_changes',
         {
-          event: '*', // Lắng nghe mọi sự kiện: INSERT, UPDATE, DELETE
+          event: '*', 
           schema: 'public',
         },
         (payload) => {
           console.log('Phát hiện thay đổi dữ liệu từ thiết bị khác:', payload);
-          
-          // Phát ra một Custom Event để các trang con tự động gọi lại hàm fetch dữ liệu
           window.dispatchEvent(new CustomEvent('supabase-data-changed', { detail: payload }));
         }
       )
       .subscribe();
 
-    // Dọn dẹp channel khi unmount app
     return () => {
       supabase.removeChannel(channel);
     };
@@ -99,6 +99,11 @@ function App() {
   const handleUpdateClick = () => {
     setIsPopupOpen(true);
   };
+
+  // Nếu chưa đăng nhập, bắt buộc hiển thị màn hình máy tính đè lên toàn bộ app
+  if (!isAuthenticated) {
+    return <CalculatorLogin onLoginSuccess={() => setIsAuthenticated(true)} />;
+  }
 
   return (
     <div className="app-container">
