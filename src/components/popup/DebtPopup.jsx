@@ -23,6 +23,20 @@ export default function DebtPopup({ isOpen, onClose, onAddDebt }) {
     const formatted = Number(rawVal).toLocaleString('vi-VN');
     setAmount(formatted);
   };
+
+  // Hàm tự động thêm dấu / cho ngày tháng (DD/MM/YYYY)
+  const handleDateChange = (value, setter) => {
+    let cleaned = value.replace(/\D/g, '').slice(0, 8); // Chỉ lấy tối đa 8 số
+    let formatted = cleaned;
+
+    if (cleaned.length >= 5) {
+      formatted = `${cleaned.slice(0, 2)}/${cleaned.slice(2, 4)}/${cleaned.slice(4)}`;
+    } else if (cleaned.length >= 3) {
+      formatted = `${cleaned.slice(0, 2)}/${cleaned.slice(2)}`;
+    }
+
+    setter(formatted);
+  };
  
   useEffect(() => {
     if (!datum) {
@@ -132,6 +146,8 @@ export default function DebtPopup({ isOpen, onClose, onAddDebt }) {
             <label>1. Chủ nợ</label>
             <input 
               type="text" 
+              autoComplete="off"
+              name="creditor_input"
               placeholder="Nhập tên chủ nợ" 
               value={creditor} 
               onChange={(e) => setCreditor(e.target.value)} 
@@ -143,6 +159,8 @@ export default function DebtPopup({ isOpen, onClose, onAddDebt }) {
             <label>2. Số tiền gốc</label>
             <input 
               type="text" 
+              autoComplete="off"
+              name="amount_input"
               placeholder="Nhập số tiền..." 
               value={amount} 
               onChange={handleAmountChange} 
@@ -154,9 +172,11 @@ export default function DebtPopup({ isOpen, onClose, onAddDebt }) {
             <label>3. Ngày nhận</label>
             <input 
               type="text" 
+              autoComplete="off"
+              name="datum_input"
               placeholder="VD: 08/05/2026" 
               value={datum} 
-              onChange={(e) => setDatum(e.target.value)} 
+              onChange={(e) => handleDateChange(e.target.value, setDatum)} 
               required 
             />
           </div>
@@ -165,9 +185,11 @@ export default function DebtPopup({ isOpen, onClose, onAddDebt }) {
             <label>4. Đến hạn</label>
             <input 
               type="text" 
+              autoComplete="off"
+              name="duedate_input"
               placeholder="VD: 08/11/2026" 
               value={dueDate} 
-              onChange={(e) => setDueDate(e.target.value)} 
+              onChange={(e) => handleDateChange(e.target.value, setDueDate)} 
             />
           </div>
 
@@ -183,6 +205,8 @@ export default function DebtPopup({ isOpen, onClose, onAddDebt }) {
             <label>7. Ghi chú</label>
             <input  
               type="text" 
+              autoComplete="off"
+              name="note_input"
               placeholder="Nhập ghi chú (nếu có)..." 
               value={note} 
               onChange={(e) => setNote(e.target.value)} 
