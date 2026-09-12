@@ -19,7 +19,7 @@
 
   .common-grid-container {
     width: 90%;
-    margin: 0 auto;
+    margin: 10px auto;
     padding-bottom: 90px; /* Tránh bị footer che khuất khi cuộn */
   }
 
@@ -224,7 +224,6 @@
   padding: 16px;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  margin-bottom: 16px;
 }
 
 .social-header-top-row {
@@ -274,9 +273,8 @@
 .phuc-social-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
+  gap: 4px;
   width: 100%;
-  padding: 10px 0;
 }
 
 .phuc-social-card {

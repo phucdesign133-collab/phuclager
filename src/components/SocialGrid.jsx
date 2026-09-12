@@ -37,7 +37,7 @@ export default function SocialGrid({ rawData, onSelectSeries, onEditSeries, onDe
 
           const latestItem = validItemsList[validItemsList.length - 1] || {};
           
-          const purposeText = rawSeriesList.purpose || latestItem.purpose || "Chưa có định hướng / slogan cho series này.";
+          const purposeText = rawSeriesList.purpose || latestItem.purpose || "Chưa có mục đích cho series này.";
           const displayName = rawSeriesList.seriesName || getSeriesDisplayName(seriesKey);
 
           return (

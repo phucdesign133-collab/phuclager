@@ -97,6 +97,21 @@ export default function SocialSeriesPopup({ isOpen, onClose, onSave, onDelete, l
     setPublishDateInput(formatted);
   };
 
+  // Hàm xử lý khi nhập link -> Tự động tích chọn nếu có nội dung, bỏ tích nếu trống
+  const handleLinkChange = (platform, value) => {
+    const hasText = value.trim().length > 0;
+    if (platform === 'meta') {
+      setMetaLink(value);
+      if (hasText) setPostedMeta(true);
+    } else if (platform === 'youtube') {
+      setYoutubeLink(value);
+      if (hasText) setPostedYouTube(true);
+    } else if (platform === 'tiktok') {
+      setTiktokLink(value);
+      if (hasText) setPostedTikTok(true);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setUploading(true);
@@ -258,13 +273,13 @@ export default function SocialSeriesPopup({ isOpen, onClose, onSave, onDelete, l
                     type="checkbox" 
                     checked={postedMeta} 
                     onChange={(e) => setPostedMeta(e.target.checked)} 
-                    style={{ width: '16px', height: '16px', cursor: 'pointer',margin:'0' }}
+                    style={{ width: '16px', height: '16px', cursor: 'pointer', margin:'0' }}
                   />
                 </div>
                 <input 
                   type="text" 
                   value={metaLink} 
-                  onChange={(e) => setMetaLink(e.target.value)} 
+                  onChange={(e) => handleLinkChange('meta', e.target.value)} 
                   placeholder="Dán link bài viết Meta..." 
                   style={{ width: '100%', padding: '6px 10px', fontSize: '13px' }}
                 />
@@ -278,13 +293,13 @@ export default function SocialSeriesPopup({ isOpen, onClose, onSave, onDelete, l
                     type="checkbox" 
                     checked={postedYouTube} 
                     onChange={(e) => setPostedYouTube(e.target.checked)} 
-                    style={{ width: '16px', height: '16px', cursor: 'pointer',margin:'0' }}
+                    style={{ width: '16px', height: '16px', cursor: 'pointer', margin:'0' }}
                   />
                 </div>
                 <input 
                   type="text" 
                   value={youtubeLink} 
-                  onChange={(e) => setYoutubeLink(e.target.value)} 
+                  onChange={(e) => handleLinkChange('youtube', e.target.value)} 
                   placeholder="Dán link YouTube..." 
                   style={{ width: '100%', padding: '6px 10px', fontSize: '13px' }}
                 />
@@ -298,13 +313,13 @@ export default function SocialSeriesPopup({ isOpen, onClose, onSave, onDelete, l
                     type="checkbox" 
                     checked={postedTikTok} 
                     onChange={(e) => setPostedTikTok(e.target.checked)} 
-                    style={{ width: '16px', height: '16px', cursor: 'pointer',margin:'0' }}
+                    style={{ width: '16px', height: '16px', cursor: 'pointer', margin:'0' }}
                   />
                 </div>
                 <input 
                   type="text" 
                   value={tiktokLink} 
-                  onChange={(e) => setTiktokLink(e.target.value)} 
+                  onChange={(e) => handleLinkChange('tiktok', e.target.value)} 
                   placeholder="Dán link TikTok..." 
                   style={{ width: '100%', padding: '6px 10px', fontSize: '13px' }}
                 />

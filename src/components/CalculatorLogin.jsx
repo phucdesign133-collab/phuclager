@@ -230,7 +230,7 @@ export default function CalculatorLogin({ onLoginSuccess }) {
         
         <button onClick={handleToggleSign} style={btnStyle("#333333", "#fff")}>+/-</button>
         <button onClick={() => handleNumber("0")} style={btnStyle("#333333", "#fff")}>0</button>
-        <button onClick={() => handleNumber(".")} style={btnStyle("#333333", "#fff")}>.</button>
+        <button onClick={() => handleNumber(",")} style={btnStyle("#333333", "#fff")}>,</button>
         <button onClick={handleEquals} style={btnStyle("#ff9f0a", "#fff")}>=</button>
       </div>
     </div>
@@ -245,7 +245,7 @@ function btnStyle(bg, color) {
     borderRadius: "50%", 
     aspectRatio: "1 / 1", 
     width: "100%",
-    fontSize: "26px", 
+    fontSize: "40px", 
     cursor: "pointer",
     display: "flex",
     alignItems: "center",

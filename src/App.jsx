@@ -1,4 +1,4 @@
-import { Routes, Route, useLocation } from "react-router-dom";
+import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import { dropdownData } from "./datas/dropdownData";
 import { supabase } from "./components/utils/supabaseClient"; 
@@ -7,7 +7,7 @@ import "./App.css";
 // Components
 import Header from "./components/Header";
 import Footer from "./components/Footer";
-import CalculatorLogin from "./components/CalculatorLogin"; // Đảm bảo đường dẫn import đúng vị trí file CalculatorLogin của anh
+import CalculatorLogin from "./components/CalculatorLogin";
 
 // Pages
 import Finance from "./pages/Finance";
@@ -52,7 +52,7 @@ function App() {
   // State lưu tên series đang mở trong tab Social để ẩn Header khi vào SocialList
   const [activeSocialSeries, setActiveSocialSeries] = useState(null);
 
-  // --- THÊM ĐOẠN LẮNG NGHE REALTIME CHO TOÀN BỘ APP ---
+  // --- LẮNG NGHE REALTIME CHO TOÀN BỘ APP ---
   useEffect(() => {
     const channel = supabase
       .channel('global-db-changes')
@@ -122,7 +122,7 @@ function App() {
       
       <div className="app-content">
         <Routes>
-          <Route path="/" element={<Finance selectedFilter={selectedValue} isPopupOpen={isPopupOpen} setIsPopupOpen={setIsPopupOpen} />} />
+          <Route path="/" element={<Navigate to="/finance" replace />} />
           <Route path="/finance" element={<Finance selectedFilter={selectedValue} isPopupOpen={isPopupOpen} setIsPopupOpen={setIsPopupOpen} />} />
           <Route path="/goal" element={<Goal selectedFilter={selectedValue} isPopupOpen={isPopupOpen} setIsPopupOpen={setIsPopupOpen} />} />
           {/* <Route path="/client" element={<Client selectedFilter={selectedValue} isPopupOpen={isPopupOpen} setIsPopupOpen={setIsPopupOpen} />} /> */}

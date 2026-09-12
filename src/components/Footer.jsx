@@ -8,7 +8,7 @@ export default function Footer() {
 
   return (
     <div className="mobile-bottom-nav">
-      <Link to="/finance" className={location.pathname === '/finance' ? 'nav-item active' : 'nav-item'}>
+      <Link to="/finance" className={location.pathname === '/finance' || location.pathname === '/' ? 'nav-item active' : 'nav-item'}>
         <FaWallet className="nav-icon" />
         <span>Tài chính</span>
       </Link>
@@ -16,7 +16,7 @@ export default function Footer() {
         <FaBullseye className="nav-icon" />
         <span>Kế hoạch</span>
       </Link>
-      <Link to="/client" className={location.pathname === '/clients' ? 'nav-item active' : 'nav-item'}>
+      <Link to="/client" className={location.pathname === '/client' ? 'nav-item active' : 'nav-item'}>
         <FaAddressBook className="nav-icon" />
         <span>Khách hàng</span>
       </Link>

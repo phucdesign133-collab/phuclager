@@ -2,7 +2,7 @@
   background: var(--card-bg, #ffffff);
   border-radius: 12px;
   padding: 14px;margin:15px auto;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);margin: 0 auto;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);margin: 10px auto;
     width: 90%;
 }
 
@@ -63,13 +63,10 @@
   border: 1.5px solid #e9ecef;
   border-radius: 10px;
   cursor: pointer;
-  transition: all 0.2s ease-in-out;
+  transition: all 0.2s ease-in-out;text-transform: capitalize;
 }
 
-.credit-icon-item:hover {
-  background: #f1f3f5;
-  border-color: #ced4da;
-}
+
 
 .credit-icon-item.active {
   background: #fff5f5;

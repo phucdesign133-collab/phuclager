@@ -29,6 +29,6 @@
   margin-bottom: 3px;
 }
 
-.nav-item:hover, .nav-item.active {
+.nav-item.active {
   color: #b71c1c;
 }

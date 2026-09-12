@@ -28,6 +28,16 @@ export default function SocialList({ activeSeries, seriesItems, onBack, onOpenAd
       .join(" ");
   };
 
+  // Hàm chuẩn hóa đường dẫn để tránh lỗi mở nhầm localhost
+  const formatUrl = (url) => {
+    if (!url || url.trim() === "") return "";
+    const trimmed = url.trim();
+    if (/^https?:\/\//i.test(trimmed)) {
+      return trimmed;
+    }
+    return `https://${trimmed}`;
+  };
+
   return (
     <div className="grid-container">
       <div className="sticky-header-container">
@@ -67,7 +77,7 @@ export default function SocialList({ activeSeries, seriesItems, onBack, onOpenAd
               { active: item.postedYouTube, link: item.youtubeLink, icon: <FaYoutube />, name: "YouTube" },
               { active: item.postedTikTok, link: item.tiktokLink, icon: <FaTiktok />, name: "TikTok" }
             ];
-
+ 
             return (
               <div
                 key={actualIndex}
@@ -101,6 +111,7 @@ export default function SocialList({ activeSeries, seriesItems, onBack, onOpenAd
                 <div className="phuc-social-icons-bottom">
                   {platforms.map((p, i) => {
                     const hasLink = p.link && p.link.trim() !== "";
+                    const finalLink = formatUrl(p.link);
 
                     return (
                       <div
@@ -110,7 +121,7 @@ export default function SocialList({ activeSeries, seriesItems, onBack, onOpenAd
                           e.stopPropagation();
                           if (p.active) {
                             if (hasLink) {
-                              window.open(p.link, "_blank", "noopener,noreferrer");
+                              window.open(finalLink, "_blank", "noopener,noreferrer");
                             } else {
                               alert(`Chưa có link cho nền tảng ${p.name}!`);
                             }

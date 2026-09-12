@@ -5,6 +5,7 @@ export const dropdownData = {
     { value: "tong-so-du", label: "Tổng số dư" },
     { value: "the-tin-dung", label: "Thẻ tín dụng" },
     { value: "tong-du-no", label: "Tổng dư nợ" },
+    { value: "ngan-sach-marketing", label: "Ngân sách Marketing" },
   ],
   goal: [
     { value: "ke-hoach-tuan", label: "Kế hoạch tuần" },
@@ -17,6 +18,8 @@ export const dropdownData = {
     { value: "khach-workshop", label: "Khách workshop" },
     { value: "doi-tac-thien-nguyen", label: "Đối tác thiện nguyện" },
     { value: "doi-tac-nha-cung-cap", label: "Đối tác nhà cung cấp" },
+    { value: "dia-diem-bieu-dien", label: "Địa điểm biểu diễn" },
+    { value: "blacklist", label: "Blacklist" },
   ],
   social: [
     { value: "quan-ly-series", label: "Quản lý Series" },
@@ -26,5 +29,6 @@ export const dropdownData = {
     { value: "kho-lam-show", label: "Kho làm show" },
     { value: "kho-do-dung", label: "Kho đồ dùng ở trọ" },
     { value: "tu-quan-ao", label: "Tủ quần áo" },
+     { value: "Voucher", label: "Voucher/Quà tặng" },
   ],
 };
