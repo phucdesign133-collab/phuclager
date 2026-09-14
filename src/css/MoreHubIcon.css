@@ -1,0 +1,94 @@
+/* src/css/MoreHubIcon.css */
+
+.more-hub-container {
+  height: 100%;
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 20px 16px 120px 16px;
+  background-color: var(--hub-bg, #f8fafc);
+  box-sizing: border-box;
+}
+
+.more-hub-container::-webkit-scrollbar {
+  width: 5px;
+}
+
+.more-hub-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.more-hub-container::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+.more-hub-section {
+  margin-bottom: 20px;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(8px);
+  padding: 12px;
+  border-radius: 16px;
+  border: 1px solid #f1f5f9;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.more-section-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #333;
+  margin: 0 0 10px 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  text-align: center;
+}
+
+.more-hub-grid-4cols {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.more-hub-icon-card {
+  background: #ffffff;
+  padding: 10px 4px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid #e2e8f0;
+}
+
+.more-hub-icon-card:active {
+  transform: scale(0.95);
+}
+
+.more-icon-wrapper {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 6px;
+}
+
+.more-icon-symbol {
+  font-size: 18px;
+}
+
+.more-icon-name {
+  font-size: 11px;
+  font-weight: 500;
+  color: #334155;
+  text-align: center;
+  line-height: 1.2;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

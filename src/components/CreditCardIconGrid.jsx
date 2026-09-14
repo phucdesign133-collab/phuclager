@@ -1,7 +1,7 @@
 import React from "react";
 import "../css/CreditCardIconGrid.css";
 
-export default function CreditCardIconGrid({ onSelectCard, onAddCard, selectedCard, allCardsData = {} }) {
+export default function CreditCardIconGrid({ onSelectCard, selectedCard, allCardsData = {} }) {
   const cards = Object.entries(allCardsData)
     .map(([id, data]) => ({
       id,
@@ -66,10 +66,6 @@ export default function CreditCardIconGrid({ onSelectCard, onAddCard, selectedCa
             <span className="icon-label">{card.name}</span>
           </div>
         ))}
-
-        <div className="credit-icon-item" onClick={() => onAddCard && onAddCard()}>
-          <span className="icon-label">+ Thêm thẻ</span>
-        </div>
       </div>
     </div>
   );

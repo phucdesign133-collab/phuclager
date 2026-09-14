@@ -1,0 +1,280 @@
+.dashboard-page {
+  min-height: 100vh;
+  background: #f8fafc;
+  box-sizing: border-box;
+  padding-bottom: 20px;
+}
+
+.dashboard-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  height: 56px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  align-items: center;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  box-sizing: border-box;
+}
+
+.dashboard-header-side {
+  width: 100%;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dashboard-back-btn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 28px;
+  color: #333;
+}
+
+.dashboard-header-title {
+  text-align: center;
+  font-size: 18px;
+  font-weight: 700;
+  color: #222;
+}
+
+.dashboard-content {
+  width: 100%;
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.dashboard-break-even-block {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-sizing: border-box;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.dashboard-break-even-title {
+  text-align: center;
+  font-size: 15px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 8px;
+  letter-spacing: 0.5px;
+}
+
+.dashboard-break-even-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 0;
+  font-size: 14px;
+  color: #444;
+}
+
+.dashboard-break-even-row + .dashboard-break-even-row {
+  border-top: 1px dashed #eeeeee;
+}
+
+.dashboard-break-even-row span:last-child {
+  text-align: right;
+  font-weight: 700;
+  color: #333;
+}
+
+.dashboard-break-even-negative {
+  color: #d9534f !important;
+}
+
+.dashboard-break-even-positive {
+  color: #28a745 !important;
+}
+
+.dashboard-month-block {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-sizing: border-box;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.dashboard-month-title {
+  text-align: center;
+  font-size: 15px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 18px;
+  letter-spacing: 0.5px;
+}
+
+.dashboard-progress-block {
+  margin-bottom: 16px;
+}
+
+.dashboard-progress-button {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.dashboard-progress-label-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  column-gap: 10px;
+  margin-bottom: 7px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #444;
+}
+
+.dashboard-progress-label-row span:nth-child(2) {
+  font-size: 12px;
+  font-weight: 600;
+  color: #555;
+}
+
+.dashboard-progress-label-row span:last-child {
+  font-size: 12px;
+  font-weight: 500;
+  color: #777;
+}
+
+.dashboard-progress-bar {
+  width: 100%;
+  height: 18px;
+  display: flex;
+  border-radius: 999px;
+  background: #d1d5db;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.dashboard-progress-segment {
+  height: 100%;
+  flex: 0 0 auto;
+}
+
+.dashboard-progress-segment-empty {
+  width: 100%;
+  height: 100%;
+  background: #d1d5db;
+}
+
+.dashboard-detail-list {
+  margin-top: 8px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: #f8fafc;
+  border: 1px solid #eef2f7;
+}
+
+.dashboard-detail-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 7px 0;
+  border-bottom: 1px dashed #e5e7eb;
+  font-size: 13px;
+}
+
+.dashboard-detail-row:last-child {
+  border-bottom: none;
+}
+
+.dashboard-detail-row > span:first-child {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.dashboard-detail-dot {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 8px;
+  border-radius: 50%;
+}
+
+.income-list .dashboard-detail-row > span:last-child {
+  color: #28a745;
+  font-weight: 600;
+}
+
+.expense-list .dashboard-detail-row > span:last-child {
+  color: #d9534f;
+  font-weight: 600;
+}
+
+.dashboard-empty-detail {
+  text-align: center;
+  padding: 8px;
+  font-size: 12px;
+  color: #999;
+}
+
+.dashboard-summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 18px;
+  padding-top: 10px;
+  border-top: 1px solid #eeeeee;
+  font-size: 14px;
+  font-weight: 600;
+  color: #444;
+}
+
+.dashboard-summary-positive {
+  color: #28a745;
+}
+
+.dashboard-summary-negative {
+  color: #d9534f;
+}
+
+@media (max-width: 480px) {
+  .dashboard-content {
+    padding: 12px;
+  }
+
+  .dashboard-break-even-block,
+  .dashboard-month-block {
+    padding: 14px;
+  }
+
+  .dashboard-header-title {
+    font-size: 17px;
+  }
+
+  .dashboard-progress-bar {
+    height: 16px;
+  }
+
+  .dashboard-progress-label-row {
+    column-gap: 6px;
+    font-size: 12px;
+  }
+
+  .dashboard-progress-label-row span:nth-child(2),
+  .dashboard-progress-label-row span:last-child {
+    font-size: 11px;
+  }
+
+  .dashboard-detail-row {
+    font-size: 12px;
+  }
+}
